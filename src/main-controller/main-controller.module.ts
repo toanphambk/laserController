@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { LaserControllerModule } from '../laser-controller/laser-controller.module';
-import { McProtocolService } from '../mc-protocol/mc-protocol.service';
+import { McProtocolModule } from '../mc-protocol/mc-protocol.module';
+import { MainControllerService } from './main-controller.service';
 
 @Module({
-  imports: [LaserControllerModule, McProtocolService],
+  providers: [MainControllerService],
+  imports: [LaserControllerModule, McProtocolModule],
 })
 export class MainControllerModule {}
