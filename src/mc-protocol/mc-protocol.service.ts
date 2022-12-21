@@ -20,9 +20,6 @@ const CN_REGISTER_HEAD_DEVICE_CODE = Buffer.from([0x4e, 0x43]);
 const CS_REGISTER_HEAD_DEVICE_CODE = Buffer.from([0x43, 0x53]);
 const END_BUFFER = Buffer.from([0x0]);
 
-const PLC_PORT = 8888;
-const PLC_IP = '192.168.0.250';
-
 @Injectable()
 export class McProtocolService {
   public plcSocketReady = false;
@@ -31,8 +28,8 @@ export class McProtocolService {
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
 
-  public initPlcSocket = async () => {
-    this.plcSocket = net.createConnection(PLC_PORT, PLC_IP, () => {
+  public initPlcSocket = async (ip, port) => {
+    this.plcSocket = net.createConnection(ip, port, () => {
       console.log('init connection to machine');
       this.plcSocket.setEncoding('hex');
 
@@ -41,7 +38,7 @@ export class McProtocolService {
       });
 
       this.plcSocket.on('connect', () => {
-        console.log(`connected to machine at ${PLC_IP} and ${PLC_PORT}`);
+        console.log(`connected to machine at ${ip} and ${port}`);
         this.plcSocketReady = true;
       });
 
@@ -52,7 +49,7 @@ export class McProtocolService {
         this.plcSocketReady = false;
         this.plcSocket.end();
         setTimeout(() => {
-          this.initPlcSocket();
+          this.initPlcSocket(ip, port);
         }, 2000);
       });
     });
@@ -243,7 +240,7 @@ export class McProtocolService {
             this.plcSocketReady = false;
             this.plcSocketEvent.emit(command.uuid, false);
           } else {
-            this.plcSocketEvent.emit(command.uuid, false);
+            this.plcSocketEvent.emit(command.uuid, true);
           }
           res();
         }
