@@ -3,5 +3,6 @@ import { McProtocolService } from './mc-protocol.service';
 
 @Module({
   providers: [McProtocolService],
+  exports: [McProtocolService],
 })
 export class McProtocolModule {}
