@@ -124,15 +124,10 @@ export class LaserControllerService {
         }
       },
     );
-    await new Promise<void>((res) => {
-      setTimeout(() => {
-        laserWindow.workwindow.setForeground();
-        res();
-      }, 2000);
-    });
 
     await new Promise<void>((res) => {
       setTimeout(() => {
+        laserWindow.workwindow.setForeground();
         laserWindow.keyboard.sendKey('enter');
         res();
       }, 2000);
