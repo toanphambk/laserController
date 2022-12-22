@@ -28,7 +28,9 @@ export class McProtocolService {
   public plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
-
+  constructor() {
+    this.scan();
+  }
   public initPlcSocket = (ip, port) => {
     return new Promise<void>((res) => {
       this.plcSocket = net.createConnection(port, ip, () => {
@@ -44,7 +46,7 @@ export class McProtocolService {
       this.plcSocket.on('connect', () => {
         console.log(`connected to machine at ${ip} and ${port}`);
         this.plcSocketReady = true;
-        res()
+        res();
       });
 
       this.plcSocket.on('close', () => {
@@ -57,16 +59,10 @@ export class McProtocolService {
           this.initPlcSocket(ip, port);
         }, 2000);
       });
-    })
-
+    });
   };
 
-  public writeBitToPLC = (
-    deviceType,
-    deviceNum,
-    deviceCount,
-    deviceData,
-  ) => {
+  public writeBitToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
     return new Promise((resolve, reject) => {
       console.log({ deviceType, deviceNum, deviceCount, deviceData });
 
@@ -113,12 +109,7 @@ export class McProtocolService {
     });
   };
 
-  public writeWordToPLC = (
-    deviceType,
-    deviceNum,
-    deviceCount,
-    deviceData,
-  ) => {
+  public writeWordToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
     return new Promise((resolve) => {
       console.log({ deviceType, deviceNum, deviceCount, deviceData });
 
@@ -229,16 +220,16 @@ export class McProtocolService {
       this.queue = [];
       await new Promise<void>((res) => {
         setTimeout(() => {
-          res()
+          res();
         }, 20);
-      })
+      });
     }
     if (!this.queue.length) {
       await new Promise<void>((res) => {
         setTimeout(() => {
-          res()
+          res();
         }, 20);
-      })
+      });
     }
     const command = this.queue[0];
 
@@ -257,8 +248,8 @@ export class McProtocolService {
         } else {
           this.plcSocketEvent.emit(command.uuid, true);
         }
-        this.scan()
-        return
+        this.scan();
+        return;
       }
     });
     this.plcSocket.write(command.buffer);
