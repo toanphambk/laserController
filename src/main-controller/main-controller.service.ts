@@ -61,8 +61,6 @@ export class MainControllerService {
           1050,
           10,
         );
-        console.log(dataForLaser);
-        console.log(dataForLaser.length);
         this.laserControlerService.laserTrigger(dataForLaser);
       }
     }, 200);
