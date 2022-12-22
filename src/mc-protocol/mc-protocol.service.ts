@@ -299,6 +299,8 @@ export class McProtocolService {
       });
     }
     const command = this.queue[0];
+    console.log(this.queue.length);
+
     await new Promise<void>((res) => {
       this.plcSocketEvent.once('plcSocketDataComming', (data) => {
         /* data parsing */
