@@ -25,6 +25,7 @@ export class MainControllerService {
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
     this.heartBeat();
+    this.systemState();
   };
 
   private heartBeat = () => {
