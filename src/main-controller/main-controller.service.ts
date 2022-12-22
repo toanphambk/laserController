@@ -3,7 +3,6 @@ import { LaserControllerService } from '../laser-controller/laser-controller.ser
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
 import { ServiceState } from '../interface/laserController.Interface';
-import onChange from 'on-change';
 
 @Injectable()
 export class MainControllerService {
@@ -52,6 +51,7 @@ export class MainControllerService {
         5000,
         1,
       );
+      console.log('laserCommad', _laserCommand);
       if (this.systemState.laserCommand !== _laserCommand[0]) {
         if (_laserCommand[0]) {
           return;
