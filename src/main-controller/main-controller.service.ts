@@ -36,7 +36,7 @@ export class MainControllerService {
       ) {
         const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
         await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-          this.systemState.temp[0] == 0 ? 1 : 0,
+          temp[0] == 0 ? 1 : 0,
         ]);
       }
     }, 5000);
@@ -46,7 +46,7 @@ export class MainControllerService {
     setInterval(async () => {
       const _laserCommand = await this.mcProtocolService.readBitFromPLC(
         'M',
-        5015,
+        5000,
         1,
       );
       if (this.systemState.laserCommand !== _laserCommand[0]) {
