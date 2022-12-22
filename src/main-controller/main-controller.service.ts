@@ -22,7 +22,7 @@ export class MainControllerService {
       'EF',
       'GH',
     ]);
-    const write = await this.mcProtocolService.writeBitToPLC('M', 5000, 2, [
+    const write = await this.mcProtocolService.writeBitToPLC('M', 5000, 1, [
       0x11,
     ]);
     const read = await this.mcProtocolService.readBitFromPLC('M', 5000, 1);
