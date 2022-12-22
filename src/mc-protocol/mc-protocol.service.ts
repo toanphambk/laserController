@@ -64,8 +64,6 @@ export class McProtocolService {
 
   public writeBitToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
     return new Promise((resolve, reject) => {
-      console.log({ deviceType, deviceNum, deviceCount, deviceData });
-
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
@@ -97,15 +95,17 @@ export class McProtocolService {
         buffer = Buffer.concat([buffer, deviceDataBuffer[i]]);
       }
 
-      const command = {
+      this.queue.push({
         buffer: buffer,
         uuid: _uuid,
         commandType: commandType.WRITE_WORD,
-      };
-      this.queue.push(command);
+      });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        console.log(command, data ? 'sucess' : 'fail');
+        console.log(
+          { deviceType, deviceNum, deviceCount, deviceData },
+          data ? 'sucess' : 'fail',
+        );
         resolve(data);
       });
     });
@@ -144,15 +144,17 @@ export class McProtocolService {
         buffer = Buffer.concat([buffer, deviceDataBuffer[i]]);
       }
 
-      const command = {
+      this.queue.push({
         buffer: buffer,
         uuid: _uuid,
         commandType: commandType.WRITE_WORD,
-      };
-      this.queue.push(command);
+      });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        console.log(command, data ? 'sucess' : 'fail');
+        console.log(
+          { deviceType, deviceNum, deviceCount, deviceData },
+          data ? 'sucess' : 'fail',
+        );
         resolve(data);
       });
     });
