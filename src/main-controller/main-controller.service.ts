@@ -39,7 +39,7 @@ export class MainControllerService {
           'M',
           5015,
           1,
-        );
+        )[0];
 
         await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
           hearbeat == 0 ? 1 : 0,
