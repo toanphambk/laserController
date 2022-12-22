@@ -197,6 +197,7 @@ export class McProtocolService {
         uuid: _uuid,
         commandType: commandType.READ_WORD,
       });
+      console.log(buffer);
 
       this.plcSocketEvent.once(_uuid, (data) => {
         resolve(data);
@@ -282,8 +283,6 @@ export class McProtocolService {
         }
       }
     }
-    console.log(buffer);
-
     return buffer;
   };
 
