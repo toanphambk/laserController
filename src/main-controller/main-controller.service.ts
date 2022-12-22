@@ -3,6 +3,7 @@ import { LaserControllerService } from '../laser-controller/laser-controller.ser
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
 import { ServiceState } from '../interface/laserController.Interface';
+import onChange from 'on-change';
 
 @Injectable()
 export class MainControllerService {
@@ -13,7 +14,11 @@ export class MainControllerService {
   ) {
     this.mainControllerInit();
   }
-  private systemState = {};
+
+  private systemState = {
+    laserCommand: 0,
+  };
+
   public mainControllerInit = async () => {
     await this.laserControlerService.laserControllerServiceInit();
     // await this.laserControlerService.laserTrigger(Date.now().toString());
@@ -24,7 +29,7 @@ export class MainControllerService {
     this.heartBeat();
   };
 
-  public heartBeat = () => {
+  private heartBeat = () => {
     setInterval(async () => {
       if (
         this.laserControlerService.getState() == ServiceState.READY &&
@@ -36,10 +41,32 @@ export class MainControllerService {
           5015,
           1,
         );
-        await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-          hearbeat.charAt(0) == '0' ? 1 : 0,
-        ]);
+        console.log(hearbeat);
+
+        // await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
+        //   hearbeat.charAt(0) == '0' ? 1 : 0,
+        // ]);
       }
     }, 5000);
+  };
+
+  // private systemUpdate = () => {
+  //   this.systemState.laserCommand = await this.mcProtocolService.writeBitToPLC(
+  //     'M',
+  //     5015,
+  //     1,
+  //   );
+  // };
+
+  private systemOnchange = () => {
+    const watchedObject = onChange(
+      this.systemState,
+      (path, value, previousValue, applyData) => {
+        console.log('this:', this);
+        console.log('path:', path);
+        console.log('value:', value);
+        console.log('previousValue:', previousValue);
+      },
+    );
   };
 }
