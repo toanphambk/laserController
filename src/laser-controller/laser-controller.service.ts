@@ -122,9 +122,14 @@ export class LaserControllerService {
         if (err) {
           return this.errorHandler(err);
         }
-        laserWindow.workwindow.setForeground();
       },
     );
+    await new Promise<void>((res) => {
+      setTimeout(() => {
+        laserWindow.workwindow.setForeground();
+        res();
+      }, 2000);
+    });
 
     await new Promise<void>((res) => {
       setTimeout(() => {

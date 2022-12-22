@@ -22,6 +22,7 @@ export class MainControllerService {
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
   };
+
   public heartBeat = () => {
     setInterval(async () => {
       if (
@@ -34,7 +35,9 @@ export class MainControllerService {
           5015,
           1,
         );
-        console.log(hearbeat);
+        await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
+          hearbeat.charAt(0) == '0' ? 1 : 0,
+        ]);
       }
     }, 1000);
   };
