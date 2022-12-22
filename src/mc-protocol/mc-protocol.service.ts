@@ -370,12 +370,11 @@ export class McProtocolService {
     });
   };
 
-  private hexToAscii(str1) {
-    const hex = str1.toString();
+  private hexToAscii(hexx) {
+    const hex = hexx.toString();
     let str = '';
-    for (let n = 0; n < hex.length; n += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
-    }
+    for (let i = 0; i < hex.length; i += 2)
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     return str;
   }
 }
