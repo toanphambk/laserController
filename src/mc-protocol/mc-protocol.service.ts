@@ -305,6 +305,7 @@ export class McProtocolService {
     await new Promise<void>((res) => {
       this.plcSocketEvent.once('plcSocketDataComming', (data) => {
         /* data parsing */
+        console.log(data);
         const response = data.toString('hex');
         if (
           command.commandType == commandType.WRITE_BIT ||
