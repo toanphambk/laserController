@@ -168,6 +168,42 @@ export class McProtocolService {
     });
   };
 
+  public readBitFromPLC = (
+    deviceType: string,
+    deviceNum: number,
+    deviceCount: number,
+  ) => {
+    return new Promise((resolve) => {
+      const _uuid = uuidv4();
+
+      const deviceCode = this.deviceTypeTobuffer(deviceType);
+      if (!deviceCode) {
+        return console.log('wrong device code!');
+      }
+
+      /* register data to 16 buffer */
+      const headDevice = this.deviceNumToHeadDevice(deviceNum);
+
+      const buffer = Buffer.concat([
+        READ_BIT_START_BUFFER,
+        headDevice,
+        deviceCode,
+        Buffer.from([deviceCount]),
+        END_BUFFER,
+      ]);
+
+      this.queue.push({
+        buffer: buffer,
+        uuid: _uuid,
+        commandType: commandType.READ_WORD,
+      });
+
+      this.plcSocketEvent.once(_uuid, (data) => {
+        resolve(this.hexToAscii(data));
+      });
+    });
+  };
+
   public readWordFromPLC = (
     deviceType: string,
     deviceNum: number,
@@ -199,11 +235,7 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        // console.log(
-        //   { deviceType, deviceNum, deviceCount },
-        //   data ? 'sucess' : 'fail',
-        // );
-        resolve(data);
+        resolve(this.hexToAscii(data));
       });
     });
   };
@@ -317,7 +349,7 @@ export class McProtocolService {
             this.plcSocketEvent.emit(command.uuid, true);
           }
         } else {
-          this.plcSocketEvent.emit(command.uuid, this.hexToAscii(response));
+          this.plcSocketEvent.emit(command.uuid, response);
         }
         this.scan();
         res();
