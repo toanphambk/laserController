@@ -18,6 +18,6 @@ export class MainControllerService {
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     // await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
-    await this.barcodeScanerService.initBarcodeScanner(1, 9600, 8, 1);
+    this.barcodeScanerService.initBarcodeScanner(3, 9600, 8, 1);
   };
 }

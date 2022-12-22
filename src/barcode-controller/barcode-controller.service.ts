@@ -33,7 +33,7 @@ export class BarcodeControllerService {
       console.log('Barcode connected');
       this.barcodeScanner.on('data', (data) => {
         this.dataAvaiable = true;
-        this.barCodeData = data;
+        this.barCodeData = Buffer.from(data).toString();
         console.log(this.dataAvaiable);
         console.log(this.barCodeData);
       });
