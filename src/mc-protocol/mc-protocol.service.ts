@@ -199,10 +199,10 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        console.log(
-          { deviceType, deviceNum, deviceCount },
-          data ? 'sucess' : 'fail',
-        );
+        // console.log(
+        //   { deviceType, deviceNum, deviceCount },
+        //   data ? 'sucess' : 'fail',
+        // );
         resolve(data);
       });
     });
@@ -318,6 +318,7 @@ export class McProtocolService {
       } else {
         this.plcSocketEvent.emit(command.uuid, response);
       }
+      this.queue.shift();
       this.scan();
       return;
     });
