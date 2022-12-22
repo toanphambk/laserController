@@ -223,10 +223,7 @@ export class McProtocolService {
       }
       if (typeof data === 'string') {
         if (data.length == 1) {
-          return new Uint8Array([
-            data.charCodeAt(0) & 0x000000ff,
-            (data.charCodeAt(0) & 0x0000ff00) >> 8,
-          ]);
+          return new Uint8Array([data.charCodeAt(0) & 0x000000ff]);
         } else {
           return new Uint8Array([
             data.charAt(0).charCodeAt(0) & 0x000000ff,
