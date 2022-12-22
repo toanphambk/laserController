@@ -51,14 +51,13 @@ export class MainControllerService {
         5000,
         1,
       );
-      console.log('laserCommad', _laserCommand);
       if (this.systemState.laserCommand != _laserCommand[0]) {
+        this.systemState.laserCommand = _laserCommand[0];
         if (!_laserCommand[0]) {
           return;
         }
-        this.systemState.laserCommand = _laserCommand[0];
         this.laserControlerService.laserTrigger('asdfasdfd');
       }
-    }, 1000);
+    }, 200);
   };
 }
