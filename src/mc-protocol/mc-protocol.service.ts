@@ -296,8 +296,10 @@ export class McProtocolService {
       await new Promise<void>((res) => {
         setTimeout(() => {
           res();
-        }, 20);
+        }, 50);
       });
+      console.log('scan');
+
       return this.scan();
     }
     const command = this.queue[0];
