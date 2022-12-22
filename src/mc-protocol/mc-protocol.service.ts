@@ -299,29 +299,28 @@ export class McProtocolService {
       });
     }
     const command = this.queue[0];
-
-    this.plcSocketEvent.once('plcSocketDataComming', (data) => {
-      /* data parsing */
-      const response = data.toString('hex');
-      console.log(response);
-
-      if (
-        command.commandType == commandType.WRITE_BIT ||
-        command.commandType == commandType.WRITE_WORD
-      ) {
-        if (response !== '8300' && response !== '8200') {
-          console.log('sending command got err \r\n', response);
-          this.plcSocketEvent.emit(command.uuid, false);
+    await new Promise<void>((res) => {
+      this.plcSocketEvent.once('plcSocketDataComming', (data) => {
+        /* data parsing */
+        const response = data.toString('hex');
+        if (
+          command.commandType == commandType.WRITE_BIT ||
+          command.commandType == commandType.WRITE_WORD
+        ) {
+          if (response !== '8300' && response !== '8200') {
+            console.log('sending command got err \r\n', response);
+            this.plcSocketEvent.emit(command.uuid, false);
+          } else {
+            this.plcSocketEvent.emit(command.uuid, true);
+          }
         } else {
-          this.plcSocketEvent.emit(command.uuid, true);
+          this.plcSocketEvent.emit(command.uuid, response);
         }
-      } else {
-        this.plcSocketEvent.emit(command.uuid, response);
-      }
-      this.scan();
-      return;
+        this.scan();
+        res();
+      });
+      this.plcSocket.write(command.buffer);
+      this.queue.shift();
     });
-    this.plcSocket.write(command.buffer);
-    this.queue.shift();
   };
 }
