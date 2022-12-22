@@ -40,6 +40,6 @@ export class MainControllerService {
           hearbeat.charAt(0) == '0' ? 1 : 0,
         ]);
       }
-    }, 1000);
+    }, 5000);
   };
 }
