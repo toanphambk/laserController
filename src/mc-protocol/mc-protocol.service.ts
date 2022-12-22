@@ -301,7 +301,6 @@ export class McProtocolService {
         }
       }
     });
-    console.log(buffer);
     return buffer;
   };
 
