@@ -5,9 +5,9 @@ import { EventEmitter } from 'stream';
 import { commandType } from './mc-protocol.Interface';
 import { resolve } from 'path';
 
-const WRITE_BATCH_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
+const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
-const READ_BATCH_START_BUFFER = Buffer.from([0x01, 0xff, 0x0a, 0x00]);
+const READ_WORD_START_BUFFER = Buffer.from([0x01, 0xff, 0x0a, 0x00]);
 const READ_BIT_START_BUFFER = Buffer.from([0x00, 0xff, 0x0a, 0x00]);
 const D_REGISTER_HEAD_DEVICE_CODE = Buffer.from([0x20, 0x44]);
 const M_REGISTER_HEAD_DEVICE_CODE = Buffer.from([0x20, 0x4d]);
@@ -141,7 +141,7 @@ export class McProtocolService {
       const headDevice = this.deviceNumToHeadDevice(deviceNum);
 
       let buffer = Buffer.concat([
-        WRITE_BATCH_START_BUFFER,
+        WRITE_WORD_START_BUFFER,
         headDevice,
         deviceCode,
         Buffer.from([deviceCount]),
@@ -185,7 +185,7 @@ export class McProtocolService {
       const headDevice = this.deviceNumToHeadDevice(deviceNum);
 
       const buffer = Buffer.concat([
-        WRITE_BATCH_START_BUFFER,
+        READ_WORD_START_BUFFER,
         headDevice,
         deviceCode,
         Buffer.from([deviceCount]),

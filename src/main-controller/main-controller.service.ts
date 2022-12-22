@@ -17,10 +17,10 @@ export class MainControllerService {
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     const result = await this.mcProtocolService.writeWordToPLC('D', 1000, 4, [
-      'a',
-      'b',
-      'c',
-      'd',
+      'AB',
+      'CD',
+      'EF',
+      'GH',
     ]);
     const read = await this.mcProtocolService.readWordFromPLC('D', 1050, 4);
     console.log(read);
