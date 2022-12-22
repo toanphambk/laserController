@@ -222,7 +222,6 @@ export class McProtocolService {
         return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
       }
       if (typeof data === 'string') {
-        console.log(data.length);
         if (data.length == 1) {
           return new Uint8Array([
             data.charCodeAt(0) & 0x000000ff,
@@ -231,7 +230,7 @@ export class McProtocolService {
         } else {
           return new Uint8Array([
             data.charAt(0).charCodeAt(0) & 0x000000ff,
-            ((data.charAt(1).charCodeAt(0) << 8) & 0x0000ff00) >> 8,
+            (data.charAt(1).charCodeAt(0) & 0x000000ff) << 8,
           ]);
         }
       }
