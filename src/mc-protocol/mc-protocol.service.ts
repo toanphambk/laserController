@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
 import { EventEmitter } from 'stream';
 import { commandType } from './mc-protocol.Interface';
+import { resolve } from 'path';
 
 const WRITE_BATCH_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
@@ -27,41 +28,45 @@ export class McProtocolService {
   public plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
-    
-  public initPlcSocket = async (ip, port) => {
-    this.plcSocket = net.createConnection(port, ip, () => {
-      console.log('init connection to plc');
-    });
 
-    this.plcSocket.setEncoding('hex');
+  public initPlcSocket = (ip, port) => {
+    return new Promise<void>((res) => {
+      this.plcSocket = net.createConnection(port, ip, () => {
+        console.log('init connection to plc');
+      });
 
-    this.plcSocket.on('data', (data) => {
-      this.plcSocketEvent.emit('plcSocketDataComming', data);
-    });
+      this.plcSocket.setEncoding('hex');
 
-    this.plcSocket.on('connect', () => {
-      console.log(`connected to machine at ${ip} and ${port}`);
-      this.plcSocketReady = true;
-    });
+      this.plcSocket.on('data', (data) => {
+        this.plcSocketEvent.emit('plcSocketDataComming', data);
+      });
 
-    this.plcSocket.on('close', () => {
-      const _date = new Date();
-      console.log('Connection closed at ', _date.toLocaleTimeString());
-      console.log('trying to reconnect');
-      this.plcSocketReady = false;
-      this.plcSocket.end();
-      setTimeout(() => {
-        this.initPlcSocket(ip, port);
-      }, 2000);
-    });
+      this.plcSocket.on('connect', () => {
+        console.log(`connected to machine at ${ip} and ${port}`);
+        this.plcSocketReady = true;
+        res()
+      });
+
+      this.plcSocket.on('close', () => {
+        const _date = new Date();
+        console.log('Connection closed at ', _date.toLocaleTimeString());
+        console.log('trying to reconnect');
+        this.plcSocketReady = false;
+        this.plcSocket.end();
+        setTimeout(() => {
+          this.initPlcSocket(ip, port);
+        }, 2000);
+      });
+    })
+
   };
 
-  public writeBitToPLC = ({
+  public writeBitToPLC = (
     deviceType,
     deviceNum,
     deviceCount,
     deviceData,
-  }) => {
+  ) => {
     return new Promise((resolve, reject) => {
       console.log({ deviceType, deviceNum, deviceCount, deviceData });
 
@@ -108,12 +113,12 @@ export class McProtocolService {
     });
   };
 
-  public writeWordToPLC = ({
+  public writeWordToPLC = (
     deviceType,
     deviceNum,
     deviceCount,
     deviceData,
-  }) => {
+  ) => {
     return new Promise((resolve) => {
       console.log({ deviceType, deviceNum, deviceCount, deviceData });
 
@@ -219,35 +224,43 @@ export class McProtocolService {
     ]);
   };
 
-  private scan = () => {
-    return new Promise<void>((res) => {
-      if (!this.plcSocketReady) {
-        this.queue = [];
-        return;
-      }
+  private scan = async () => {
+    if (!this.plcSocketReady) {
+      this.queue = [];
+      await new Promise<void>((res) => {
+        setTimeout(() => {
+          res()
+        }, 20);
+      })
+    }
+    if (!this.queue.length) {
+      await new Promise<void>((res) => {
+        setTimeout(() => {
+          res()
+        }, 20);
+      })
+    }
+    const command = this.queue[0];
 
-      const command = this.queue[0];
-
-      this.plcSocketEvent.once('plcSocketDataComming', (data) => {
-        if (
-          command.commandType == commandType.WRITE_BIT ||
-          command.commandType == commandType.WRITE_WORD
-        ) {
-          /* data parsing */
-          const response = data.toString('hex');
-          /* data on condition */
-          if (response !== '8300' && response !== '8200') {
-            console.log('sending command got err \r\n', response);
-            this.plcSocketReady = false;
-            this.plcSocketEvent.emit(command.uuid, false);
-          } else {
-            this.plcSocketEvent.emit(command.uuid, true);
-          }
-          res();
+    this.plcSocketEvent.once('plcSocketDataComming', (data) => {
+      if (
+        command.commandType == commandType.WRITE_BIT ||
+        command.commandType == commandType.WRITE_WORD
+      ) {
+        /* data parsing */
+        const response = data.toString('hex');
+        /* data on condition */
+        if (response !== '8300' && response !== '8200') {
+          console.log('sending command got err \r\n', response);
+          this.plcSocketReady = false;
+          this.plcSocketEvent.emit(command.uuid, false);
+        } else {
+          this.plcSocketEvent.emit(command.uuid, true);
         }
-      });
-
-      this.plcSocket.write(command.buffer);
+        this.scan()
+        return
+      }
     });
+    this.plcSocket.write(command.buffer);
   };
 }

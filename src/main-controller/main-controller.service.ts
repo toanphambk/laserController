@@ -16,5 +16,8 @@ export class MainControllerService {
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
+    let result =await  this.mcProtocolService.writeWordToPLC('D',1000,1,[2000])
+    console.log(result);
+    
   };
 }
