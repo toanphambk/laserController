@@ -24,13 +24,13 @@ const END_BUFFER = Buffer.from([0x0]);
 export class McProtocolService {
   public plcSocketReady = false;
   private plcSocketEvent = new EventEmitter();
-  private plcSocket: net.Socket;
+  public plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
 
   public initPlcSocket = async (ip, port) => {
-    this.plcSocket = net.createConnection(ip, port, () => {
-      console.log('init connection to machine');
+    this.plcSocket = net.createConnection(port, ip, () => {
+      console.log('init connection to plc');
       this.plcSocket.setEncoding('hex');
 
       this.plcSocket.on('data', (data) => {

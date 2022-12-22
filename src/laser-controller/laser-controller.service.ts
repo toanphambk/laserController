@@ -85,11 +85,11 @@ export class LaserControllerService {
         });
         socket.on('close', (err) => {
           console.log(err);
-          console.log('fasdfads');
+          console.log('close');
         });
       });
 
-      this.laserSocketServer.listen({ host: 'localhost', port: 1000 }, () => {
+      this.laserSocketServer.listen({ host: '127.0.0.1',family: 'IPv4', port: 1000 }, () => {
         console.log('opened server on', this.laserSocketServer.address());
         res();
       });
@@ -116,7 +116,7 @@ export class LaserControllerService {
       }, 2000);
     });
 
-    execFile('C:\\Users\\Admin\\Desktop\\Ezcad\\EzCad2.exe', (err) => {
+    execFile('D:\\Software-Explanation\\EZCAD_LITE_2.14.16(20210519)\\EzCad2.exe', (err) => {
       if (err) {
         return this.errorHandler(err);
       }
@@ -141,7 +141,7 @@ export class LaserControllerService {
       setTimeout(async () => {
         await laserWindow.keyboard.sendKey(['ctrl', 'o'], 50, 1000);
         await laserWindow.keyboard.printText(
-          'C:\\Users\\Admin\\Desktop\\No.ezd',
+          'D:\\Software-Explanation\\EZCAD_LITE_2.14.16(20210519)\\No.ezd',
           0,
           50,
         );
