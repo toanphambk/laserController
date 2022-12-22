@@ -27,7 +27,9 @@ export class McProtocolService {
   public plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
-
+  constructor() {
+    this.initPlcSocket('192.168.1.50', 5000);
+  }
   public initPlcSocket = async (ip, port) => {
     this.plcSocket = net.createConnection(port, ip, () => {
       console.log('init connection to plc');
