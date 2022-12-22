@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getAllWindows, Hardware } from 'keysender';
+import { Hardware } from 'keysender';
 import net from 'net';
 import { ServiceState as ServiceState } from '../interface/laserController.Interface';
 import { execFile } from 'child_process';
@@ -12,7 +12,7 @@ export class LaserControllerService {
   private laserControllerEvent = new events.EventEmitter();
   private laserEngraveData = '';
 
-  public getLaserControllerServiceState = () => {
+  public getState = () => {
     return this.state;
   };
   public laserControllerServiceInit = async () => {

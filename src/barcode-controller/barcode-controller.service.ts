@@ -16,7 +16,7 @@ export class BarcodeControllerService {
     return data;
   };
 
-  public getBarcodeScannerServiceState = () => {
+  public getState = () => {
     return this.state;
   };
 

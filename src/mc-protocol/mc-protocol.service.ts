@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
 import { EventEmitter } from 'stream';
 import { commandType } from '../interface/mc-protocol.Interface';
+import { ServiceState } from '../interface/laserController.Interface';
 
 const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
@@ -22,14 +23,17 @@ const END_BUFFER = Buffer.from([0x0]);
 
 @Injectable()
 export class McProtocolService {
-  public plcSocketReady = false;
+  private plcSocketReady = ServiceState.BOOT_UP;
   private plcSocketEvent = new EventEmitter();
-  public plcSocket: net.Socket;
+  private plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
     [];
   constructor() {
     this.scan();
   }
+  public getState = () => {
+    return this.plcSocketReady;
+  };
   public initPlcSocket = (ip, port) => {
     return new Promise<void>((res) => {
       this.plcSocket = net.createConnection(port, ip, () => {
@@ -44,7 +48,7 @@ export class McProtocolService {
 
       this.plcSocket.on('connect', () => {
         console.log(`connected to machine at ${ip} and ${port}`);
-        this.plcSocketReady = true;
+        this.plcSocketReady = ServiceState.READY;
         res();
       });
 
@@ -52,7 +56,7 @@ export class McProtocolService {
         const _date = new Date();
         console.log('Connection closed at ', _date.toLocaleTimeString());
         console.log('trying to reconnect');
-        this.plcSocketReady = false;
+        this.plcSocketReady = ServiceState.ERROR;
         this.plcSocket.end();
         setTimeout(() => {
           this.initPlcSocket(ip, port);
