@@ -373,9 +373,12 @@ export class McProtocolService {
   private hexToAscii(hexx) {
     const hex = hexx.toString();
     let str = '';
-    for (let i = 0; i < hex.length; i += 2)
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    str.substring(0, str.indexOf('\0'));
+    for (let i = 0; i < hex.length; i += 2) {
+      const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      if (_char != '\0') {
+        str += _char;
+      }
+    }
     return str;
   }
 }
