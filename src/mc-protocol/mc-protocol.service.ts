@@ -126,7 +126,7 @@ export class McProtocolService {
       }
 
       /* register data to 16 buffer */
-      const deviceDataBuffer = this.batchDeviceDataToBuffer(deviceData);
+      const deviceDataBuffer = this.wordDeviceDataToBuffer(deviceData);
 
       const headDevice = this.deviceNumToHeadDevice(deviceNum);
 
@@ -203,11 +203,12 @@ export class McProtocolService {
     return buffer;
   };
 
-  private batchDeviceDataToBuffer = (deviceData) => {
-    const Buffer = deviceData.map((num) => {
+  private wordDeviceDataToBuffer = (deviceData) => {
+    const buffer = deviceData.map((num) => {
       return new Uint8Array([num & 0x000000ff, (num & 0x0000ff00) >> 8]);
     });
-    return Buffer;
+    console.log(buffer);
+    return buffer;
   };
 
   private deviceNumToHeadDevice = (deviceNum) => {
