@@ -113,8 +113,6 @@ export class McProtocolService {
 
   public writeWordToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
     return new Promise((resolve) => {
-      console.log({ deviceType, deviceNum, deviceCount, deviceData });
-
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
