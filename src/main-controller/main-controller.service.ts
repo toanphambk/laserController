@@ -3,7 +3,6 @@ import { LaserControllerService } from '../laser-controller/laser-controller.ser
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
 import { ServiceState } from '../interface/laserController.Interface';
-import onChange from 'on-change';
 
 @Injectable()
 export class MainControllerService {
@@ -59,7 +58,7 @@ export class MainControllerService {
   // };
 
   private systemOnchange = () => {
-    const watchedObject = onChange(
+    const watchedObject = onchangeonChange(
       this.systemState,
       (path, value, previousValue, applyData) => {
         console.log('this:', this);
