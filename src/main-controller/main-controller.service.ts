@@ -3,6 +3,7 @@ import { LaserControllerService } from '../laser-controller/laser-controller.ser
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
 import { ServiceState } from '../interface/laserController.Interface';
+import onChange from 'on-change';
 
 @Injectable()
 export class MainControllerService {
@@ -14,9 +15,7 @@ export class MainControllerService {
     this.mainControllerInit();
   }
 
-  private systemState = {
-    laserCommand: 0,
-  };
+  private systemState;
 
   public mainControllerInit = async () => {
     await this.laserControlerService.laserControllerServiceInit();
@@ -35,36 +34,31 @@ export class MainControllerService {
         this.barcodeScanerService.getState() == ServiceState.READY &&
         this.mcProtocolService.getState() == ServiceState.READY
       ) {
-        const hearbeat = await this.mcProtocolService.readBitFromPLC(
-          'M',
-          5015,
-          1,
-        );
-
+        const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
+        this.systemState.hearbeat = temp[0];
         await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-          hearbeat[0] == 0 ? 1 : 0,
+          this.systemState.hearbeat == 0 ? 1 : 0,
         ]);
       }
     }, 5000);
   };
 
-  // private systemUpdate = () => {
-  //   this.systemState.laserCommand = await this.mcProtocolService.writeBitToPLC(
-  //     'M',
-  //     5015,
-  //     1,
-  //   );
-  // };
+  private systemUpdate = async () => {
+    const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
+    this.systemState.laserCommand = temp[0];
+  };
 
-  // private systemOnchange = () => {
-  //   const watchedObject = onchangeonChange(
-  //     this.systemState,
-  //     (path, value, previousValue, applyData) => {
-  //       console.log('this:', this);
-  //       console.log('path:', path);
-  //       console.log('value:', value);
-  //       console.log('previousValue:', previousValue);
-  //     },
-  //   );
-  // };
+  private systemOnchange = () => {
+    this.systemState = onChange(
+      {
+        laserCommand: 0,
+        heartBeat: 0,
+      },
+      function (path, value, previousValue) {
+        console.log('path:', path);
+        console.log('value:', value);
+        console.log('previousValue:', previousValue);
+      },
+    );
+  };
 }

@@ -177,7 +177,7 @@ export class McProtocolService {
     deviceNum: number,
     deviceCount: number,
   ) => {
-    return new Promise((resolve, rejects) => {
+    return new Promise<number[]>((resolve, rejects) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
