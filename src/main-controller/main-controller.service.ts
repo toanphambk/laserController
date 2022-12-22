@@ -22,7 +22,7 @@ export class MainControllerService {
       'EF',
       'GH',
     ]);
-    const read = await this.mcProtocolService.readWordFromPLC('M', 5000, 1);
+    const read = await this.mcProtocolService.readBitFromPLC('M', 5000, 1);
     console.log(read);
   };
 }
