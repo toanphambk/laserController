@@ -318,10 +318,10 @@ export class McProtocolService {
       } else {
         this.plcSocketEvent.emit(command.uuid, response);
       }
-      this.queue.shift();
       this.scan();
       return;
     });
     this.plcSocket.write(command.buffer);
+    this.queue.shift();
   };
 }
