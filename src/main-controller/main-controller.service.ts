@@ -36,7 +36,7 @@ export class MainControllerService {
       ) {
         const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
         await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-          this.systemState.hearbeat[0] == 0 ? 1 : 0,
+          this.systemState.temp[0] == 0 ? 1 : 0,
         ]);
       }
     }, 5000);
