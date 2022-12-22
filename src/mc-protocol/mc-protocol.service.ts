@@ -204,8 +204,10 @@ export class McProtocolService {
 
       this.plcSocketEvent.once(_uuid, (data) => {
         if (data.substring(0, 4) == '8000') {
-          const temp = data.substring(4).split('');
-          temp.map((char) => Number(char));
+          const temp = data
+            .substring(4)
+            .split('')
+            .map((char) => parseInt(char));
           resolve(temp);
         } else {
           rejects('reading fail');
