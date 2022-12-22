@@ -298,8 +298,6 @@ export class McProtocolService {
           res();
         }, 50);
       });
-      console.log('scan');
-
       return this.scan();
     }
     const command = this.queue[0];
@@ -307,7 +305,6 @@ export class McProtocolService {
     await new Promise<void>((res) => {
       this.plcSocketEvent.once('plcSocketDataComming', (data) => {
         /* data parsing */
-        console.log(data);
         const response = data.toString('hex');
         if (
           command.commandType == commandType.WRITE_BIT ||
@@ -320,7 +317,7 @@ export class McProtocolService {
             this.plcSocketEvent.emit(command.uuid, true);
           }
         } else {
-          this.plcSocketEvent.emit(command.uuid, response);
+          this.plcSocketEvent.emit(command.uuid, this.hexToAscii(response));
         }
         this.scan();
         res();
@@ -329,4 +326,13 @@ export class McProtocolService {
       this.queue.shift();
     });
   };
+
+  private hexToAscii(str1) {
+    const hex = str1.toString();
+    let str = '';
+    for (let n = 0; n < hex.length; n += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+    }
+    return str;
+  }
 }
