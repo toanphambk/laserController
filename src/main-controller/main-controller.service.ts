@@ -56,12 +56,13 @@ export class MainControllerService {
         if (!_laserCommand[0]) {
           return;
         }
-        let dataForLaser = await this.mcProtocolService.readWordFromPLC(
+        const dataForLaser = await this.mcProtocolService.readWordFromPLC(
           'D',
           1050,
           10,
         );
-        dataForLaser = String(dataForLaser);
+        console.log(dataForLaser);
+        console.log(dataForLaser.length);
         this.laserControlerService.laserTrigger(dataForLaser);
       }
     }, 200);
