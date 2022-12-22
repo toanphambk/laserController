@@ -204,8 +204,14 @@ export class McProtocolService {
   };
 
   private wordDeviceDataToBuffer = (deviceData) => {
-    const buffer = deviceData.map((num) => {
-      return new Uint8Array([num & 0x000000ff, (num & 0x0000ff00) >> 8]);
+    const buffer = deviceData.map((data) => {
+      if (typeof data === 'number') {
+        return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
+      }
+      if (typeof data === 'string') {
+        data = data.charCodeAt(0);
+        return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
+      }
     });
     console.log(buffer);
     return buffer;
