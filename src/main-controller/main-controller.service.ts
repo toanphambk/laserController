@@ -15,7 +15,9 @@ export class MainControllerService {
     this.mainControllerInit();
   }
 
-  private systemState;
+  private systemState = {
+    laserCommand: 0,
+  };
 
   public mainControllerInit = async () => {
     await this.laserControlerService.laserControllerServiceInit();
