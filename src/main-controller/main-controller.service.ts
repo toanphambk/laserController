@@ -40,11 +40,8 @@ export class MainControllerService {
           5015,
           1,
         );
-        console.log(hearbeat);
 
-        // await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-        //   hearbeat.charAt(0) == '0' ? 1 : 0,
-        // ]);
+        await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [!hearbeat]);
       }
     }, 5000);
   };
