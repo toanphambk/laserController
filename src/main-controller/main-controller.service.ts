@@ -35,30 +35,27 @@ export class MainControllerService {
         this.mcProtocolService.getState() == ServiceState.READY
       ) {
         const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
-        this.systemState.hearbeat = temp[0];
         await this.mcProtocolService.writeBitToPLC('M', 5015, 1, [
-          this.systemState.hearbeat == 0 ? 1 : 0,
+          this.systemState.hearbeat[0] == 0 ? 1 : 0,
         ]);
       }
     }, 5000);
   };
 
   private systemUpdate = async () => {
-    const temp = await this.mcProtocolService.readBitFromPLC('M', 5015, 1);
-    this.systemState.laserCommand = temp[0];
-  };
-
-  private systemOnchange = () => {
-    this.systemState = onChange(
-      {
-        laserCommand: 0,
-        heartBeat: 0,
-      },
-      function (path, value, previousValue) {
-        console.log('path:', path);
-        console.log('value:', value);
-        console.log('previousValue:', previousValue);
-      },
-    );
+    setInterval(async () => {
+      const _laserCommand = await this.mcProtocolService.readBitFromPLC(
+        'M',
+        5015,
+        1,
+      );
+      if (this.systemState.laserCommand !== _laserCommand[0] && ) {
+        if (_laserCommand[0]) {
+          return 
+        }
+        this.systemState.laserCommand = _laserCommand[0];
+        this.laserControlerService.laserTrigger('asdfasdfd')
+      }
+    }, 1000);
   };
 }
