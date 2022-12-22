@@ -204,13 +204,35 @@ export class McProtocolService {
   };
 
   private wordDeviceDataToBuffer = (deviceData) => {
+    // let buffer = [];
+    // for (let i = 0; i <= deviceData.length; i++) {
+    //   const data = deviceData[i];
+    //   if (typeof deviceData[i] === 'number') {
+    //     buffer[i] = new Uint8Array([
+    //       data & 0x000000ff,
+    //       (data & 0x0000ff00) >> 8,
+    //     ]);
+    //     if (typeof data === 'string') {
+    //       data = data.charCodeAt(0);
+    //       return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
+    //   }
+    // }
     const buffer = deviceData.map((data) => {
       if (typeof data === 'number') {
         return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
       }
       if (typeof data === 'string') {
-        data = data.charCodeAt(0);
-        return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
+        if (data.length == 1) {
+          return new Uint8Array([
+            data.charCodeAt(0) & 0x000000ff,
+            (data.charCodeAt(0) & 0x0000ff00) >> 8,
+          ]);
+        } else {
+          return new Uint8Array([
+            data.charAt(0).charCodeAt(0) & 0x000000ff,
+            (data.charAt(1).charCodeAt(0) & 0x0000ff00) >> 8,
+          ]);
+        }
       }
     });
     console.log(buffer);
