@@ -52,8 +52,8 @@ export class MainControllerService {
         1,
       );
       console.log('laserCommad', _laserCommand);
-      if (this.systemState.laserCommand !== _laserCommand[0]) {
-        if (_laserCommand[0]) {
+      if (this.systemState.laserCommand != _laserCommand[0]) {
+        if (!_laserCommand[0]) {
           return;
         }
         this.systemState.laserCommand = _laserCommand[0];
