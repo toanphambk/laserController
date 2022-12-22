@@ -33,27 +33,28 @@ export class McProtocolService {
   public initPlcSocket = async (ip, port) => {
     this.plcSocket = net.createConnection(port, ip, () => {
       console.log('init connection to plc');
-      this.plcSocket.setEncoding('hex');
+    });
 
-      this.plcSocket.on('data', (data) => {
-        this.plcSocketEvent.emit('plcSocketDataComming', data);
-      });
+    this.plcSocket.setEncoding('hex');
 
-      this.plcSocket.on('connect', () => {
-        console.log(`connected to machine at ${ip} and ${port}`);
-        this.plcSocketReady = true;
-      });
+    this.plcSocket.on('data', (data) => {
+      this.plcSocketEvent.emit('plcSocketDataComming', data);
+    });
 
-      this.plcSocket.on('close', () => {
-        const _date = new Date();
-        console.log('Connection closed at ', _date.toLocaleTimeString());
-        console.log('trying to reconnect');
-        this.plcSocketReady = false;
-        this.plcSocket.end();
-        setTimeout(() => {
-          this.initPlcSocket(ip, port);
-        }, 2000);
-      });
+    this.plcSocket.on('connect', () => {
+      console.log(`connected to machine at ${ip} and ${port}`);
+      this.plcSocketReady = true;
+    });
+
+    this.plcSocket.on('close', () => {
+      const _date = new Date();
+      console.log('Connection closed at ', _date.toLocaleTimeString());
+      console.log('trying to reconnect');
+      this.plcSocketReady = false;
+      this.plcSocket.end();
+      setTimeout(() => {
+        this.initPlcSocket(ip, port);
+      }, 2000);
     });
   };
 
