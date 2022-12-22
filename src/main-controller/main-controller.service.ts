@@ -57,15 +57,15 @@ export class MainControllerService {
   //   );
   // };
 
-  private systemOnchange = () => {
-    const watchedObject = onchangeonChange(
-      this.systemState,
-      (path, value, previousValue, applyData) => {
-        console.log('this:', this);
-        console.log('path:', path);
-        console.log('value:', value);
-        console.log('previousValue:', previousValue);
-      },
-    );
-  };
+  // private systemOnchange = () => {
+  //   const watchedObject = onchangeonChange(
+  //     this.systemState,
+  //     (path, value, previousValue, applyData) => {
+  //       console.log('this:', this);
+  //       console.log('path:', path);
+  //       console.log('value:', value);
+  //       console.log('previousValue:', previousValue);
+  //     },
+  //   );
+  // };
 }
