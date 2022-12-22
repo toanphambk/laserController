@@ -1,28 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { getAllWindows, Hardware } from 'keysender';
 import net from 'net';
-import {
-  LaserControllerState,
-  laserControllerstate,
-} from './interface/laserController.Interface';
+import { ServiceState as ServiceState } from '../interface/laserController.Interface';
 import { execFile } from 'child_process';
 import events from 'events';
 
 @Injectable()
 export class LaserControllerService {
-  // constructor() {
-  //   this.laserControllerServiceInit();
-  // }
-  public state: laserControllerstate = LaserControllerState.BOOT_UP;
+  private state: ServiceState = ServiceState.BOOT_UP;
   private laserSocketServer: net.Server;
   private laserControllerEvent = new events.EventEmitter();
   private laserEngraveData = '';
 
+  public getLaserControllerServiceState = () => {
+    return this.state;
+  };
   public laserControllerServiceInit = async () => {
-    this.state = LaserControllerState.INIT;
+    this.state = ServiceState.INIT;
     await this.initTCPserver();
     await this.initLaserSofware();
-    return (this.state = LaserControllerState.READY);
+    return (this.state = ServiceState.READY);
   };
 
   public laserTrigger = async (data: string): Promise<boolean> => {
@@ -166,7 +163,7 @@ export class LaserControllerService {
   };
 
   private errorHandler = (err) => {
-    this.state = LaserControllerState.ERROR;
+    this.state = ServiceState.ERROR;
     console.log(err);
   };
 }

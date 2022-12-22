@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
 import { EventEmitter } from 'stream';
-import { commandType } from './mc-protocol.Interface';
-import { resolve } from 'path';
+import { commandType } from '../interface/mc-protocol.Interface';
 
 const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);

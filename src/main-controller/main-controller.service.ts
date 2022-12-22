@@ -12,12 +12,13 @@ export class MainControllerService {
   ) {
     this.mainControllerInit();
   }
-
+  private systemState = {};
   public mainControllerInit = async () => {
-    // await this.laserControlerService.laserControllerServiceInit();
+    await this.laserControlerService.laserControllerServiceInit();
     // await this.laserControlerService.laserTrigger(Date.now().toString());
     // await this.laserControlerService.laserTrigger(Date.now().toString());
-    // await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
-    this.barcodeScanerService.initBarcodeScanner(3, 9600, 8, 1);
+    await this.barcodeScanerService.initBarcodeScanner(3, 9600, 8, 1);
+    await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
+    this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
   };
 }
