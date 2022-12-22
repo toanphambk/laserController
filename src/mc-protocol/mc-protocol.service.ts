@@ -199,7 +199,7 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        resolve(this.hexToAscii(data));
+        resolve(data);
       });
     });
   };
