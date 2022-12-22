@@ -62,7 +62,12 @@ export class McProtocolService {
     });
   };
 
-  public writeBitToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
+  public writeBitToPLC = (
+    deviceType: string,
+    deviceNum: number,
+    deviceCount: number,
+    deviceData: any[],
+  ) => {
     return new Promise((resolve, reject) => {
       const _uuid = uuidv4();
 
@@ -111,7 +116,12 @@ export class McProtocolService {
     });
   };
 
-  public writeWordToPLC = (deviceType, deviceNum, deviceCount, deviceData) => {
+  public writeWordToPLC = (
+    deviceType: string,
+    deviceNum: number,
+    deviceCount: number,
+    deviceData: any[],
+  ) => {
     return new Promise((resolve) => {
       const _uuid = uuidv4();
 
@@ -151,6 +161,46 @@ export class McProtocolService {
       this.plcSocketEvent.once(_uuid, (data) => {
         console.log(
           { deviceType, deviceNum, deviceCount, deviceData },
+          data ? 'sucess' : 'fail',
+        );
+        resolve(data);
+      });
+    });
+  };
+
+  public readWordFromPLC = (
+    deviceType: string,
+    deviceNum: number,
+    deviceCount: number,
+  ) => {
+    return new Promise((resolve) => {
+      const _uuid = uuidv4();
+
+      const deviceCode = this.deviceTypeTobuffer(deviceType);
+      if (!deviceCode) {
+        return console.log('wrong device code!');
+      }
+
+      /* register data to 16 buffer */
+      const headDevice = this.deviceNumToHeadDevice(deviceNum);
+
+      const buffer = Buffer.concat([
+        WRITE_BATCH_START_BUFFER,
+        headDevice,
+        deviceCode,
+        Buffer.from([deviceCount]),
+        END_BUFFER,
+      ]);
+
+      this.queue.push({
+        buffer: buffer,
+        uuid: _uuid,
+        commandType: commandType.READ_WORD,
+      });
+
+      this.plcSocketEvent.once(_uuid, (data) => {
+        console.log(
+          { deviceType, deviceNum, deviceCount },
           data ? 'sucess' : 'fail',
         );
         resolve(data);
@@ -204,19 +254,6 @@ export class McProtocolService {
   };
 
   private wordDeviceDataToBuffer = (deviceData) => {
-    // let buffer = [];
-    // for (let i = 0; i <= deviceData.length; i++) {
-    //   const data = deviceData[i];
-    //   if (typeof deviceData[i] === 'number') {
-    //     buffer[i] = new Uint8Array([
-    //       data & 0x000000ff,
-    //       (data & 0x0000ff00) >> 8,
-    //     ]);
-    //     if (typeof data === 'string') {
-    //       data = data.charCodeAt(0);
-    //       return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
-    //   }
-    // }
     const buffer = deviceData.map((data) => {
       if (typeof data === 'number') {
         return new Uint8Array([data & 0x000000ff, (data & 0x0000ff00) >> 8]);
@@ -264,23 +301,25 @@ export class McProtocolService {
     const command = this.queue[0];
 
     this.plcSocketEvent.once('plcSocketDataComming', (data) => {
+      /* data parsing */
+      const response = data.toString('hex');
+      console.log(response);
+
       if (
         command.commandType == commandType.WRITE_BIT ||
         command.commandType == commandType.WRITE_WORD
       ) {
-        /* data parsing */
-        const response = data.toString('hex');
-        /* data on condition */
         if (response !== '8300' && response !== '8200') {
           console.log('sending command got err \r\n', response);
-          this.plcSocketReady = false;
           this.plcSocketEvent.emit(command.uuid, false);
         } else {
           this.plcSocketEvent.emit(command.uuid, true);
         }
-        this.scan();
-        return;
+      } else {
+        this.plcSocketEvent.emit(command.uuid, response);
       }
+      this.scan();
+      return;
     });
     this.plcSocket.write(command.buffer);
   };

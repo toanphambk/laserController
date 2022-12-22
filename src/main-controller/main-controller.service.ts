@@ -22,5 +22,7 @@ export class MainControllerService {
       'c',
       'd',
     ]);
+    const read = await this.mcProtocolService.readWordFromPLC('D', 1050, 4);
+    console.log(read);
   };
 }
