@@ -28,7 +28,7 @@ export class MainControllerService {
       4,
       [1, 1, 1, 1],
     );
-    const read = await this.mcProtocolService.readBitFromPLC('M', 5000, 4);
+    const read = await this.mcProtocolService.readBitFromPLC('M', 100, 12);
     console.log(read);
   };
 }
