@@ -97,13 +97,15 @@ export class McProtocolService {
         buffer = Buffer.concat([buffer, deviceDataBuffer[i]]);
       }
 
-      this.queue.push({
+      const command = {
         buffer: buffer,
         uuid: _uuid,
-        commandType: commandType.WRITE_BIT,
-      });
+        commandType: commandType.WRITE_WORD,
+      };
+      this.queue.push(command);
 
       this.plcSocketEvent.once(_uuid, (data) => {
+        console.log(command, data ? 'sucess' : 'fail');
         resolve(data);
       });
     });
@@ -142,13 +144,15 @@ export class McProtocolService {
         buffer = Buffer.concat([buffer, deviceDataBuffer[i]]);
       }
 
-      this.queue.push({
+      const command = {
         buffer: buffer,
         uuid: _uuid,
         commandType: commandType.WRITE_WORD,
-      });
+      };
+      this.queue.push(command);
 
       this.plcSocketEvent.once(_uuid, (data) => {
+        console.log(command, data ? 'sucess' : 'fail');
         resolve(data);
       });
     });
