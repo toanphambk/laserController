@@ -221,7 +221,7 @@ export class McProtocolService {
     deviceNum: number,
     deviceCount: number,
   ) => {
-    return new Promise<string>((resolve) => {
+    return new Promise<string>((resolve, rejects) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
@@ -247,7 +247,11 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        resolve(this.hexToAscii(data));
+        if (data.substring(0, 4) == '8100') {
+          resolve(this.hexToAscii(data.substring(4)));
+        } else {
+          rejects('reading fail');
+        }
       });
     });
   };
@@ -371,7 +375,7 @@ export class McProtocolService {
   };
 
   private hexToAscii(hexx) {
-    const hex = hexx.toString().substring(4);
+    const hex = hexx.toString();
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
       const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
