@@ -22,10 +22,13 @@ export class MainControllerService {
       'EF',
       'GH',
     ]);
-    const write = await this.mcProtocolService.writeBitToPLC('M', 5000, 1, [
-      0x11,
-    ]);
-    const read = await this.mcProtocolService.readBitFromPLC('M', 5000, 1);
+    const write = await this.mcProtocolService.writeBitToPLC(
+      'M',
+      5000,
+      4,
+      [1, 1, 1, 1],
+    );
+    const read = await this.mcProtocolService.readBitFromPLC('M', 5000, 4);
     console.log(read);
   };
 }
