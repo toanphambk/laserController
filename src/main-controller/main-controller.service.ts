@@ -62,7 +62,7 @@ export class MainControllerService {
           10,
         );
         console.log(dataForLaser);
-        this.laserControlerService.laserTrigger('dataForLaser');
+        this.laserControlerService.laserTrigger(dataForLaser);
       }
     }, 200);
   };
