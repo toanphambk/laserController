@@ -206,6 +206,8 @@ export class McProtocolService {
         console.log(data);
 
         if (data.substring(0, 3) == '8000') {
+          console.log(data.substring(0, 3));
+
           resolve(data.substring(4));
         } else {
           rejects('reading fail');
