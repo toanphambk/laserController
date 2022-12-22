@@ -371,7 +371,7 @@ export class McProtocolService {
   };
 
   private hexToAscii(hexx) {
-    const hex = hexx.subString(4).toString();
+    const hex = hexx.toString().subString(4);
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
       const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
