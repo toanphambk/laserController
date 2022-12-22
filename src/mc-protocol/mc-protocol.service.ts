@@ -4,6 +4,7 @@ import net from 'net';
 import { EventEmitter } from 'stream';
 import { commandType } from '../interface/mc-protocol.Interface';
 import { ServiceState } from '../interface/laserController.Interface';
+import { rejects } from 'assert';
 
 const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
@@ -177,7 +178,7 @@ export class McProtocolService {
     deviceNum: number,
     deviceCount: number,
   ) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, rejects) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
@@ -203,7 +204,11 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        resolve(data);
+        if (data.substring(0, 3) == '8000') {
+          resolve(data.substring(4));
+        } else {
+          rejects('reading fail');
+        }
       });
     });
   };
