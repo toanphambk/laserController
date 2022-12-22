@@ -231,7 +231,7 @@ export class McProtocolService {
         } else {
           return new Uint8Array([
             data.charAt(0).charCodeAt(0) & 0x000000ff,
-            (data.charAt(1).charCodeAt(0) & 0x0000ff00) >> 8,
+            ((data.charAt(1).charCodeAt(0) << 8) & 0x0000ff00) >> 8,
           ]);
         }
       }
