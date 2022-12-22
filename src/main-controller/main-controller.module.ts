@@ -4,7 +4,6 @@ import { McProtocolModule } from '../mc-protocol/mc-protocol.module';
 import { MainControllerService } from './main-controller.service';
 
 @Module({
-  providers: [MainControllerService],
   imports: [LaserControllerModule, McProtocolModule],
 })
 export class MainControllerModule {}
