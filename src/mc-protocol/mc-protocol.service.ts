@@ -290,6 +290,7 @@ export class McProtocolService {
           res();
         }, 20);
       });
+      return this.scan();
     }
     if (!this.queue.length) {
       await new Promise<void>((res) => {
@@ -297,9 +298,9 @@ export class McProtocolService {
           res();
         }, 20);
       });
+      return this.scan();
     }
     const command = this.queue[0];
-    console.log(this.queue.length);
 
     await new Promise<void>((res) => {
       this.plcSocketEvent.once('plcSocketDataComming', (data) => {
