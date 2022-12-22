@@ -13,7 +13,7 @@ export class BarcodeControllerService {
     return data;
   };
 
-  private barcodeScannerInit = async (portNo, baudrate, dataBit, stopBit) => {
+  public initBarcodeScanner = async (portNo, baudrate, dataBit, stopBit) => {
     this.barcodeScanner = new SerialPort(
       {
         path: `COM${portNo}`,
@@ -34,6 +34,8 @@ export class BarcodeControllerService {
       this.barcodeScanner.on('data', (data) => {
         this.dataAvaiable = true;
         this.barCodeData = data;
+        console.log(this.dataAvaiable);
+        console.log(this.barCodeData);
       });
     });
   };

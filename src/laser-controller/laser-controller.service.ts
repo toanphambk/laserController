@@ -89,10 +89,13 @@ export class LaserControllerService {
         });
       });
 
-      this.laserSocketServer.listen({ host: '127.0.0.1',family: 'IPv4', port: 1000 }, () => {
-        console.log('opened server on', this.laserSocketServer.address());
-        res();
-      });
+      this.laserSocketServer.listen(
+        { host: '127.0.0.1', family: 'IPv4', port: 1000 },
+        () => {
+          console.log('opened server on', this.laserSocketServer.address());
+          res();
+        },
+      );
     });
   };
 
@@ -116,12 +119,15 @@ export class LaserControllerService {
       }, 2000);
     });
 
-    execFile('D:\\Software-Explanation\\EZCAD_LITE_2.14.16(20210519)\\EzCad2.exe', (err) => {
-      if (err) {
-        return this.errorHandler(err);
-      }
-      laserWindow.workwindow.setForeground();
-    });
+    execFile(
+      'D:\\Software-Explanation\\EZCAD_LITE_2.14.16(20210519)\\EzCad2.exe',
+      (err) => {
+        if (err) {
+          return this.errorHandler(err);
+        }
+        laserWindow.workwindow.setForeground();
+      },
+    );
 
     await new Promise<void>((res) => {
       setTimeout(() => {
