@@ -49,12 +49,12 @@ export class MainControllerService {
         5015,
         1,
       );
-      if (this.systemState.laserCommand !== _laserCommand[0] && ) {
+      if (this.systemState.laserCommand !== _laserCommand[0]) {
         if (_laserCommand[0]) {
-          return 
+          return;
         }
         this.systemState.laserCommand = _laserCommand[0];
-        this.laserControlerService.laserTrigger('asdfasdfd')
+        this.laserControlerService.laserTrigger('asdfasdfd');
       }
     }, 1000);
   };
