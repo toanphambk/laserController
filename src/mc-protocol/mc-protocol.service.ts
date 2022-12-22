@@ -109,7 +109,6 @@ export class McProtocolService {
         uuid: _uuid,
         commandType: commandType.WRITE_WORD,
       });
-      console.log(buffer);
 
       this.plcSocketEvent.once(_uuid, (data) => {
         console.log(
@@ -204,6 +203,8 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
+        console.log(data);
+
         if (data.substring(0, 3) == '8000') {
           resolve(data.substring(4));
         } else {
