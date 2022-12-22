@@ -56,7 +56,13 @@ export class MainControllerService {
         if (!_laserCommand[0]) {
           return;
         }
-        this.laserControlerService.laserTrigger('asdfasdfd');
+        const dataForLaser = this.mcProtocolService.readWordFromPLC(
+          'D',
+          1050,
+          10,
+        );
+        console.log(dataForLaser);
+        this.laserControlerService.laserTrigger('dataForLaser');
       }
     }, 200);
   };
