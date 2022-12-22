@@ -105,7 +105,6 @@ export class McProtocolService {
         uuid: _uuid,
         commandType: commandType.WRITE_WORD,
       });
-
       console.log(buffer);
 
       this.plcSocketEvent.once(_uuid, (data) => {
