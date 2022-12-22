@@ -375,7 +375,7 @@ export class McProtocolService {
     let str = '';
     for (let i = 0; i < hex.length; i += 2)
       str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    str.replace(/\0/g, '');
+    str.substring(0, str.indexOf('\0'));
     return str;
   }
 }
