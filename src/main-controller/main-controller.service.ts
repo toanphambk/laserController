@@ -86,7 +86,7 @@ export class MainControllerService {
     }
     await this.mcProtocolService.writeWordToPLC(
       'D',
-      1050,
+      1000,
       buffer.length,
       buffer,
     );
