@@ -199,7 +199,7 @@ export class McProtocolService {
       this.queue.push({
         buffer: buffer,
         uuid: _uuid,
-        commandType: commandType.READ_WORD,
+        commandType: commandType.READ_BIT,
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
