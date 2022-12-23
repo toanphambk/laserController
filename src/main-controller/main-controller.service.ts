@@ -19,7 +19,7 @@ export class MainControllerService {
   };
 
   public mainControllerInit = async () => {
-    // await this.laserControlerService.laserControllerServiceInit();
+    await this.laserControlerService.laserControllerServiceInit();
     await this.barcodeScanerService.initBarcodeScanner(5, 9600, 8, 1);
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
