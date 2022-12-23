@@ -66,24 +66,30 @@ export class MainControllerService {
   };
 
   private barcodeTranfer = async () => {
-    if (!this.barcodeScanerService.dataAvaiable) {
-      return;
-    }
-    const plcReady = await this.mcProtocolService.readBitFromPLC('M', 5001, 1);
-    if (plcReady[0] == 1) {
-      return console.log('PLC not ready for barcode');
-    }
-    const barcodeData = this.barcodeScanerService.getBarcodeData();
-    const buffer = [];
-    for (let i = 0; i < barcodeData.length; i += 2) {
-      buffer.push(barcodeData.substring(i, i + 1));
-    }
-    await this.mcProtocolService.writeWordToPLC(
-      'D',
-      1050,
-      buffer.length,
-      buffer,
-    );
-    await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
+    setInterval(async () => {
+      if (!this.barcodeScanerService.dataAvaiable) {
+        return;
+      }
+      const plcReady = await this.mcProtocolService.readBitFromPLC(
+        'M',
+        5001,
+        1,
+      );
+      if (plcReady[0] == 1) {
+        return console.log('PLC not ready for barcode');
+      }
+      const barcodeData = this.barcodeScanerService.getBarcodeData();
+      const buffer = [];
+      for (let i = 0; i < barcodeData.length; i += 2) {
+        buffer.push(barcodeData.substring(i, i + 1));
+      }
+      await this.mcProtocolService.writeWordToPLC(
+        'D',
+        1050,
+        buffer.length,
+        buffer,
+      );
+      await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
+    }, 200);
   };
 }
