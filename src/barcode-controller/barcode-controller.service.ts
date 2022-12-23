@@ -10,6 +10,8 @@ export class BarcodeControllerService {
   private barcodeScanner;
 
   public getBarcodeData = () => {
+    console.log(this.dataAvaiable);
+    console.log(this.barCodeData);
     this.dataAvaiable = false;
     const data = this.barCodeData;
     this.barCodeData = '';
@@ -45,8 +47,6 @@ export class BarcodeControllerService {
         this.barcodeScanner.on('data', (data) => {
           this.dataAvaiable = true;
           this.barCodeData = Buffer.from(data).toString();
-          console.log(this.dataAvaiable);
-          console.log(this.barCodeData);
         });
       });
     });

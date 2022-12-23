@@ -76,7 +76,7 @@ export class MainControllerService {
     const plcReady = await this.mcProtocolService.readBitFromPLC('M', 5001, 1);
     console.log(plcReady);
 
-    if (plcReady[0] == 1) {
+    if (plcReady[0]) {
       return console.log('PLC not ready for barcode');
     }
     const barcodeData = this.barcodeScanerService.getBarcodeData();
