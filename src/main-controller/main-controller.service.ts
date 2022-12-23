@@ -82,8 +82,9 @@ export class MainControllerService {
     const barcodeData = this.barcodeScanerService.getBarcodeData();
     const buffer = [];
     for (let i = 0; i < barcodeData.length; i += 2) {
-      buffer.push(barcodeData.substring(i, i + 1));
+      buffer.push(barcodeData.substring(i, i + 2));
     }
+    console.log(buffer);
     await this.mcProtocolService.writeWordToPLC(
       'D',
       1000,
