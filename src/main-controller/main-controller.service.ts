@@ -44,23 +44,7 @@ export class MainControllerService {
 
   private systemUpdate = async () => {
     setInterval(async () => {
-      const _laserCommand = await this.mcProtocolService.readBitFromPLC(
-        'M',
-        5000,
-        1,
-      );
-      if (this.systemState.laserCommand != _laserCommand[0]) {
-        this.systemState.laserCommand = _laserCommand[0];
-        if (!_laserCommand[0]) {
-          return;
-        }
-        const dataForLaser = await this.mcProtocolService.readWordFromPLC(
-          'D',
-          1050,
-          10,
-        );
-        this.laserControlerService.laserTrigger(dataForLaser);
-      }
+      this.lasercommand();
       this.barcodeTranfer();
     }, 200);
   };
@@ -85,5 +69,25 @@ export class MainControllerService {
       buffer,
     );
     await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
+  };
+
+  private lasercommand = async () => {
+    const _laserCommand = await this.mcProtocolService.readBitFromPLC(
+      'M',
+      5000,
+      1,
+    );
+    if (this.systemState.laserCommand != _laserCommand[0]) {
+      this.systemState.laserCommand = _laserCommand[0];
+      if (!_laserCommand[0]) {
+        return;
+      }
+      const dataForLaser = await this.mcProtocolService.readWordFromPLC(
+        'D',
+        1050,
+        10,
+      );
+      this.laserControlerService.laserTrigger(dataForLaser);
+    }
   };
 }
