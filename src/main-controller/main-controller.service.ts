@@ -83,7 +83,7 @@ export class MainControllerService {
     const buffer = [];
     for (let i = 0; i < barcodeData.length; i += 2) {
       if (barcodeData.length % 2 && i == barcodeData.length - 1) {
-        return buffer.push(barcodeData.substring(i, i + 2) + '\0');
+        buffer.push(barcodeData.substring(i, i + 2) + '\0');
       }
       buffer.push(barcodeData.substring(i, i + 2));
     }
