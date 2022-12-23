@@ -19,7 +19,7 @@ export class MainControllerService {
   };
 
   public mainControllerInit = async () => {
-    // await this.laserControlerService.laserControllerServiceInit();
+    await this.laserControlerService.laserControllerServiceInit();
     await this.barcodeScanerService.initBarcodeScanner(5, 9600, 8, 1);
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
@@ -84,8 +84,15 @@ export class MainControllerService {
     for (let i = 0; i < barcodeData.length; i += 2) {
       buffer.push(barcodeData.substring(i, i + 2));
     }
-
-    await this.mcProtocolService.writeWordToPLC('D', 1000, 2, ['ab', 'bc']);
+    if (buffer[barcodeData.length - 1].length == 1) {
+      buffer[barcodeData.length - 1] += '\0';
+    }
+    await this.mcProtocolService.writeWordToPLC(
+      'D',
+      1000,
+      buffer.length,
+      buffer,
+    );
     await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
   };
 }
