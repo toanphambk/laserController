@@ -84,13 +84,8 @@ export class MainControllerService {
     for (let i = 0; i < barcodeData.length; i += 2) {
       buffer.push(barcodeData.substring(i, i + 2));
     }
-    console.log(buffer);
-    await this.mcProtocolService.writeWordToPLC(
-      'D',
-      1000,
-      buffer.length,
-      buffer,
-    );
+
+    await this.mcProtocolService.writeWordToPLC('D', 1000, 2, ['ab', 'bc']);
     await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
   };
 }
