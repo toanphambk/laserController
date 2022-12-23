@@ -20,13 +20,12 @@ export class MainControllerService {
 
   public mainControllerInit = async () => {
     await this.laserControlerService.laserControllerServiceInit();
-    // await this.laserControlerService.laserTrigger(Date.now().toString());
-    // await this.laserControlerService.laserTrigger(Date.now().toString());
-    await this.barcodeScanerService.initBarcodeScanner(3, 9600, 8, 1);
+    await this.barcodeScanerService.initBarcodeScanner(5, 9600, 8, 1);
     await this.mcProtocolService.initPlcSocket('192.168.1.50', 5000);
     this.mcProtocolService.writeWordToPLC('D', 1025, 1, [1]);
     this.heartBeat();
     this.systemUpdate();
+    this.barcodeTranfer();
   };
 
   private heartBeat = () => {
@@ -64,5 +63,27 @@ export class MainControllerService {
         this.laserControlerService.laserTrigger(dataForLaser);
       }
     }, 200);
+  };
+
+  private barcodeTranfer = async () => {
+    if (!this.barcodeScanerService.dataAvaiable) {
+      return;
+    }
+    const plcReady = await this.mcProtocolService.readBitFromPLC('M', 5001, 1);
+    if (plcReady[0] == 1) {
+      return console.log('PLC not ready for barcode');
+    }
+    const barcodeData = this.barcodeScanerService.getBarcodeData();
+    const buffer = [];
+    for (let i = 0; i < barcodeData.length; i += 2) {
+      buffer.push(barcodeData.substring(i, i + 1));
+    }
+    await this.mcProtocolService.writeWordToPLC(
+      'D',
+      1050,
+      buffer.length,
+      buffer,
+    );
+    await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
   };
 }
