@@ -67,6 +67,8 @@ export class MainControllerService {
 
   private barcodeTranfer = async () => {
     setInterval(async () => {
+      console.log(this.barcodeScanerService.dataAvaiable);
+
       if (!this.barcodeScanerService.dataAvaiable) {
         return;
       }
