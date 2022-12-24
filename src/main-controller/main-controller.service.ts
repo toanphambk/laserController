@@ -3,6 +3,7 @@ import { LaserControllerService } from '../laser-controller/laser-controller.ser
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
 import { ServiceState } from '../interface/laserController.Interface';
+import { buffer } from 'stream/consumers';
 
 @Injectable()
 export class MainControllerService {
@@ -66,7 +67,9 @@ export class MainControllerService {
           1050,
           10,
         );
-        await this.laserControlerService.laserTrigger(dataForLaser);
+        await this.laserControlerService.laserTrigger(
+          this.hexToAscii(dataForLaser),
+        );
       }
     } catch (error) {
       this.errorHandler(`Laser Command Error: \n ${error}`);
@@ -90,14 +93,7 @@ export class MainControllerService {
         return console.log('PLC not ready for barcode');
       }
       const barcodeData = this.barcodeScanerService.getBarcodeData();
-      const buffer = [];
-      for (let i = 0; i < barcodeData.length; i += 2) {
-        if (barcodeData.length % 2 && i == barcodeData.length - 1) {
-          buffer.push(barcodeData.substring(i, i + 2) + '\0');
-        } else {
-          buffer.push(barcodeData.substring(i, i + 2));
-        }
-      }
+      const buffer = this.barcodeDataToBuffer(barcodeData);
 
       await this.mcProtocolService.writeWordToPLC(
         'D',
@@ -125,6 +121,7 @@ export class MainControllerService {
       }
     }, 5000);
   };
+
   private onSytemReady = async () => {
     this.systemState.state = ServiceState.READY;
     await this.mcProtocolService.writeWordToPLC('D', 1025, 1, [
@@ -158,5 +155,31 @@ export class MainControllerService {
         this.wait4SystemReady();
       }, 1000);
     });
+  };
+
+  // convert hex response from plc to string data and remove all null char
+  private hexToAscii(hexx) {
+    const hex = hexx.toString();
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+      const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      if (_char != '\0') {
+        str += _char;
+      }
+    }
+    return str;
+  }
+
+  // convert string to array of char[2] and remove add null last array member if it is char[1]
+  private barcodeDataToBuffer = (barcodeData) => {
+    const buffer = [];
+    for (let i = 0; i < barcodeData.length; i += 2) {
+      if (barcodeData.length % 2 && i == barcodeData.length - 1) {
+        buffer.push(barcodeData.substring(i, i + 2) + '\0');
+      } else {
+        buffer.push(barcodeData.substring(i, i + 2));
+      }
+    }
+    return buffer;
   };
 }
