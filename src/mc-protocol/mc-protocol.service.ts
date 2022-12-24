@@ -4,7 +4,6 @@ import net from 'net';
 import { EventEmitter } from 'stream';
 import { commandType } from '../interface/mc-protocol.Interface';
 import { ServiceState } from '../interface/laserController.Interface';
-import { rejects } from 'assert';
 
 const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
@@ -24,7 +23,7 @@ const END_BUFFER = Buffer.from([0x0]);
 
 @Injectable()
 export class McProtocolService {
-  private plcSocketReady = ServiceState.BOOT_UP;
+  private state = ServiceState.BOOT_UP;
   private plcSocketEvent = new EventEmitter();
   private plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
@@ -33,7 +32,7 @@ export class McProtocolService {
     this.scan();
   }
   public getState = () => {
-    return this.plcSocketReady;
+    return this.state;
   };
   public initPlcSocket = (ip, port) => {
     return new Promise<void>((res) => {
@@ -49,15 +48,13 @@ export class McProtocolService {
 
       this.plcSocket.on('connect', () => {
         console.log(`connected to machine at ${ip} and ${port}`);
-        this.plcSocketReady = ServiceState.READY;
+        this.state = ServiceState.READY;
         res();
       });
 
       this.plcSocket.on('close', () => {
         const _date = new Date();
-        console.log('Connection closed at ', _date.toLocaleTimeString());
-        console.log('trying to reconnect');
-        this.plcSocketReady = ServiceState.ERROR;
+        this.errorHandler(`Connection closed at ${_date.toLocaleTimeString()}`);
         this.plcSocket.end();
         setTimeout(() => {
           this.initPlcSocket(ip, port);
@@ -330,12 +327,12 @@ export class McProtocolService {
   };
 
   private scan = async () => {
-    if (!this.plcSocketReady) {
-      this.queue = [];
+    if (this.state != ServiceState.READY) {
+      this.errorHandler();
       await new Promise<void>((res) => {
         setTimeout(() => {
           res();
-        }, 20);
+        }, 500);
       });
       return this.scan();
     }
@@ -385,4 +382,10 @@ export class McProtocolService {
     }
     return str;
   }
+  private errorHandler = (err?) => {
+    this.state = ServiceState.ERROR;
+    this.plcSocketEvent.removeAllListeners();
+    this.queue = [];
+    console.log(err);
+  };
 }

@@ -15,6 +15,7 @@ export class LaserControllerService {
   public getState = () => {
     return this.state;
   };
+
   public laserControllerServiceInit = async () => {
     this.state = ServiceState.INIT;
     await this.initTCPserver();
@@ -162,8 +163,10 @@ export class LaserControllerService {
     return;
   };
 
-  private errorHandler = (err) => {
+  private errorHandler = async (err?) => {
     this.state = ServiceState.ERROR;
     console.log(err);
+    await this.initLaserSofware();
+    return (this.state = ServiceState.READY);
   };
 }

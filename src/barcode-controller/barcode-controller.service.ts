@@ -24,18 +24,32 @@ export class BarcodeControllerService {
 
   public initBarcodeScanner = async (portNo, baudrate, dataBit, stopBit) => {
     return new Promise<void>((res) => {
+      const comportParam = {
+        portNo: portNo,
+        baudrate: baudrate,
+        dataBit: dataBit,
+        stopBit: stopBit,
+      };
       this.state = ServiceState.INIT;
       this.barcodeScanner = new SerialPort(
         {
-          path: `COM${portNo}`,
-          baudRate: baudrate,
-          dataBits: dataBit,
-          stopBits: stopBit,
+          path: `COM${comportParam.portNo}`,
+          baudRate: comportParam.baudrate,
+          dataBits: comportParam.dataBit,
+          stopBits: comportParam.stopBit,
         },
         (err) => {
           if (err) {
             console.log(err);
             this.state = ServiceState.ERROR;
+            setTimeout(async () => {
+              await this.initBarcodeScanner(
+                comportParam.portNo,
+                comportParam.baudrate,
+                comportParam.dataBit,
+                comportParam.stopBit,
+              );
+            }, 1000);
           }
           this.state = ServiceState.READY;
           res();
