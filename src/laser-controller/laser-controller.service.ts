@@ -27,7 +27,7 @@ export class LaserControllerService {
     //check if software is opening
     const laserWindow = new Hardware('EzCad-Lite  - No.ezd');
     if (!laserWindow.workwindow.isOpen()) {
-      console.log('laser sofware is not opening');
+      this.errorHandler('laser sofware is not opening');
       return false;
     }
     laserWindow.workwindow.setForeground();
@@ -35,7 +35,7 @@ export class LaserControllerService {
     const bufferRecived = await new Promise((res) => {
       const tcpBufferTimer = setTimeout(() => {
         this.laserControllerEvent.removeListener('tcpBufferComming', () => {
-          console.log('tcp buffer timeout');
+          this.errorHandler('tcp buffer timeout');
           res(false);
         });
       }, 1000);
@@ -57,7 +57,7 @@ export class LaserControllerService {
     await new Promise<void>((res) => {
       setTimeout(() => {
         res();
-      }, 2000);
+      }, 500);
     });
 
     return true;

@@ -31,7 +31,7 @@ export class MainControllerService {
   private systemUpdate = async () => {
     setInterval(async () => {
       this.systemStateCheck();
-      this.lasercommand();
+      this.laserCommand();
       this.barcodeTranfer();
     }, 200);
   };
@@ -48,7 +48,7 @@ export class MainControllerService {
     }
   };
 
-  private lasercommand = async () => {
+  private laserCommand = async () => {
     if (this.systemState.state != ServiceState.READY) return;
     try {
       const _laserCommand = await this.mcProtocolService.readBitFromPLC(
@@ -66,7 +66,7 @@ export class MainControllerService {
           1050,
           10,
         );
-        this.laserControlerService.laserTrigger(dataForLaser);
+        await this.laserControlerService.laserTrigger(dataForLaser);
       }
     } catch (error) {
       this.errorHandler(`Laser Command Error: \n ${error}`);
@@ -98,7 +98,6 @@ export class MainControllerService {
           buffer.push(barcodeData.substring(i, i + 2));
         }
       }
-      console.log(buffer);
 
       await this.mcProtocolService.writeWordToPLC(
         'D',
