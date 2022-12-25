@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SerialPort } from 'serialport';
-import { ServiceState } from '../interface/laserController.Interface';
+import { ServiceState } from '../interface/serviceState.Interface';
 
 @Injectable()
 export class BarcodeControllerService {

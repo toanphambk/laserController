@@ -3,8 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
 import { EventEmitter } from 'stream';
 import { commandType } from '../interface/mc-protocol.Interface';
-import { ServiceState } from '../interface/laserController.Interface';
-import { rejects } from 'assert';
+import { ServiceState } from '../interface/serviceState.Interface';
 
 const WRITE_WORD_START_BUFFER = Buffer.from([0x03, 0xff, 0x0a, 0x00]);
 const WRITE_BIT_START_BUFFER = Buffer.from([0x02, 0xff, 0x0a, 0x00]);
@@ -24,7 +23,7 @@ const END_BUFFER = Buffer.from([0x0]);
 
 @Injectable()
 export class McProtocolService {
-  private plcSocketReady = ServiceState.BOOT_UP;
+  private state = ServiceState.BOOT_UP;
   private plcSocketEvent = new EventEmitter();
   private plcSocket: net.Socket;
   private queue: { buffer: Buffer; uuid: uuidv4; commandType: commandType }[] =
@@ -33,13 +32,25 @@ export class McProtocolService {
     this.scan();
   }
   public getState = () => {
-    return this.plcSocketReady;
+    return this.state;
   };
+  private socketParam = {
+    ip: '',
+    port: 0,
+  };
+
   public initPlcSocket = (ip, port) => {
+    this.socketParam.ip = ip;
+    this.socketParam.port = port;
+
     return new Promise<void>((res) => {
-      this.plcSocket = net.createConnection(port, ip, () => {
-        console.log('init connection to plc');
-      });
+      this.plcSocket = net.createConnection(
+        this.socketParam.port,
+        this.socketParam.ip,
+        () => {
+          console.log('init connection to plc');
+        },
+      );
 
       this.plcSocket.setEncoding('hex');
 
@@ -49,18 +60,16 @@ export class McProtocolService {
 
       this.plcSocket.on('connect', () => {
         console.log(`connected to machine at ${ip} and ${port}`);
-        this.plcSocketReady = ServiceState.READY;
+        this.state = ServiceState.READY;
         res();
       });
 
       this.plcSocket.on('close', () => {
         const _date = new Date();
-        console.log('Connection closed at ', _date.toLocaleTimeString());
-        console.log('trying to reconnect');
-        this.plcSocketReady = ServiceState.ERROR;
+        this.errorHandler(`Connection closed at ${_date.toLocaleTimeString()}`);
         this.plcSocket.end();
         setTimeout(() => {
-          this.initPlcSocket(ip, port);
+          this.initPlcSocket(this.socketParam.port, this.socketParam.port);
         }, 2000);
       });
     });
@@ -72,16 +81,16 @@ export class McProtocolService {
     deviceCount: number,
     deviceData: any[],
   ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
 
       if (!deviceCode) {
-        reject('wrong device code!');
+        rej('wrong device code!');
       }
       if (deviceCount !== deviceData.length) {
-        reject('device count and device data number are not match!');
+        rej('device count and device data number are not match!');
       }
 
       /* register data to 16 buffer */
@@ -111,11 +120,27 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        console.log(
-          { deviceType, deviceNum, deviceCount, deviceData },
-          data ? 'sucess' : 'fail',
-        );
-        resolve(data);
+        if (data) {
+          console.log(
+            `Command Write Bit ${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            }} : ${data}`,
+          );
+          res(true);
+        } else {
+          this.errorHandler();
+          rej(
+            `Fail Command Write Bit${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            }} : ${data}`,
+          );
+        }
       });
     });
   };
@@ -126,17 +151,16 @@ export class McProtocolService {
     deviceCount: number,
     deviceData: any[],
   ) => {
-    return new Promise((resolve) => {
+    return new Promise((res, rej) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
+
       if (!deviceCode) {
-        return console.log('wrong device code!');
+        rej('wrong device code!');
       }
       if (deviceCount !== deviceData.length) {
-        return console.log(
-          'device count and device data number are not match!',
-        );
+        rej('device count and device data number are not match!');
       }
 
       /* register data to 16 buffer */
@@ -163,11 +187,27 @@ export class McProtocolService {
       });
 
       this.plcSocketEvent.once(_uuid, (data) => {
-        console.log(
-          { deviceType, deviceNum, deviceCount, deviceData },
-          data ? 'sucess' : 'fail',
-        );
-        resolve(data);
+        if (data) {
+          console.log(
+            `Command Write Word ${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            }} : ${data}`,
+          );
+          res(true);
+        } else {
+          this.errorHandler();
+          rej(
+            `Fail Command Write Word${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            }} : ${data}`,
+          );
+        }
       });
     });
   };
@@ -177,12 +217,12 @@ export class McProtocolService {
     deviceNum: number,
     deviceCount: number,
   ) => {
-    return new Promise<number[]>((resolve, rejects) => {
+    return new Promise<number[]>((res, rej) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
       if (!deviceCode) {
-        return console.log('wrong device code!');
+        rej('wrong device code!');
       }
 
       /* register data to 16 buffer */
@@ -208,9 +248,23 @@ export class McProtocolService {
             .substring(4)
             .split('')
             .map((char) => parseInt(char));
-          resolve(temp);
+          console.log(
+            `Command Read Bit ${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+            }} : ${temp}`,
+          );
+          res(temp);
         } else {
-          rejects('reading fail');
+          this.errorHandler();
+          rej(
+            `Fail Command Read Bit${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+            }} : ${data}`,
+          );
         }
       });
     });
@@ -221,7 +275,7 @@ export class McProtocolService {
     deviceNum: number,
     deviceCount: number,
   ) => {
-    return new Promise<string>((resolve, rejects) => {
+    return new Promise<string>((res, rej) => {
       const _uuid = uuidv4();
 
       const deviceCode = this.deviceTypeTobuffer(deviceType);
@@ -248,9 +302,24 @@ export class McProtocolService {
 
       this.plcSocketEvent.once(_uuid, (data) => {
         if (data.substring(0, 4) == '8100') {
-          resolve(this.hexToAscii(data.substring(4)));
+          const temp = data.substring(4);
+          console.log(
+            `Command Read Word  ${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+            }} : ${temp}`,
+          );
+          res(temp);
         } else {
-          rejects('reading fail');
+          this.errorHandler();
+          rej(
+            `Fail Command Read Word : ${{
+              deviceType,
+              deviceNum,
+              deviceCount,
+            }} : ${data}`,
+          );
         }
       });
     });
@@ -330,12 +399,12 @@ export class McProtocolService {
   };
 
   private scan = async () => {
-    if (!this.plcSocketReady) {
-      this.queue = [];
+    if (this.state != ServiceState.READY) {
+      this.errorHandler();
       await new Promise<void>((res) => {
         setTimeout(() => {
           res();
-        }, 20);
+        }, 500);
       });
       return this.scan();
     }
@@ -374,15 +443,14 @@ export class McProtocolService {
     });
   };
 
-  private hexToAscii(hexx) {
-    const hex = hexx.toString();
-    let str = '';
-    for (let i = 0; i < hex.length; i += 2) {
-      const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-      if (_char != '\0') {
-        str += _char;
-      }
-    }
-    return str;
-  }
+  private errorHandler = (err?) => {
+    this.state = ServiceState.ERROR;
+    this.plcSocketEvent.removeAllListeners();
+    this.plcSocket.end();
+    setTimeout(() => {
+      this.initPlcSocket(this.socketParam.port, this.socketParam.port);
+    }, 2000);
+    this.queue = [];
+    console.log(err);
+  };
 }

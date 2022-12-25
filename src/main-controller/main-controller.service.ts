@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { LaserControllerService } from '../laser-controller/laser-controller.service';
 import { McProtocolService } from '../mc-protocol/mc-protocol.service';
 import { BarcodeControllerService } from '../barcode-controller/barcode-controller.service';
-import { ServiceState } from '../interface/laserController.Interface';
+import { ServiceState } from '../interface/serviceState.Interface';
+import { LaserControllerState } from '../interface/serviceState.Interface';
 
 @Injectable()
 export class MainControllerService {
@@ -15,7 +16,8 @@ export class MainControllerService {
   }
 
   private systemState = {
-    laserCommand: 0,
+    state: ServiceState.INIT,
+    plcLaserCommandStatus: 0,
   };
 
   public mainControllerInit = async () => {
@@ -30,7 +32,7 @@ export class MainControllerService {
   private heartBeat = () => {
     setInterval(async () => {
       if (
-        this.laserControlerService.getState() == ServiceState.READY &&
+        this.laserControlerService.getState() == LaserControllerState.READY &&
         this.barcodeScanerService.getState() == ServiceState.READY &&
         this.mcProtocolService.getState() == ServiceState.READY
       ) {
@@ -44,29 +46,59 @@ export class MainControllerService {
 
   private systemUpdate = async () => {
     setInterval(async () => {
-      this.lasercommand();
+      this.laserCommand();
       this.barcodeTranfer();
     }, 200);
   };
 
-  private lasercommand = async () => {
-    const _laserCommand = await this.mcProtocolService.readBitFromPLC(
-      'M',
-      5000,
-      1,
-    );
-    if (this.systemState.laserCommand != _laserCommand[0]) {
-      this.systemState.laserCommand = _laserCommand[0];
-      if (!_laserCommand[0]) {
-        return;
-      }
-      const dataForLaser = await this.mcProtocolService.readWordFromPLC(
-        'D',
-        1050,
-        10,
+  private laserCommand = async () => {
+    if (this.systemState.state != ServiceState.READY) return;
+    try {
+      const _plcLaserCommand = await this.mcProtocolService.readBitFromPLC(
+        'M',
+        5000,
+        1,
       );
-      this.laserControlerService.laserTrigger(dataForLaser);
+      if (this.systemState.plcLaserCommandStatus != _plcLaserCommand[0]) {
+        this.systemState.plcLaserCommandStatus = _plcLaserCommand[0];
+        if (!_plcLaserCommand[0]) {
+          return;
+        }
+        const dataForLaser = await this.mcProtocolService.readWordFromPLC(
+          'D',
+          1050,
+          10,
+        );
+        await this.laserControlerService.triggerLaser(
+          this.hexToAscii(dataForLaser),
+        );
+        await this.wait4LaserStop();
+      }
+    } catch (error) {
+      console.log(`Laser Command Error: \n ${error}`);
     }
+  };
+
+  private wait4LaserStop = () => {
+    return new Promise<void>((res) => {
+      setTimeout(() => {
+        const laserRunning = this.mcProtocolService.readBitFromPLC(
+          'M',
+          5003,
+          1,
+        );
+        const laserEMG = this.mcProtocolService.readBitFromPLC('M', 5005, 1);
+        if (laserEMG[0]) {
+          this.laserControlerService.stopLaser();
+          return res();
+        }
+        if (!laserRunning[0] && !laserEMG[0]) {
+          this.laserControlerService.finishLaser();
+          return res();
+        }
+        this.wait4LaserStop();
+      }, 200);
+    });
   };
 
   private barcodeTranfer = async () => {
@@ -98,4 +130,16 @@ export class MainControllerService {
     );
     await this.mcProtocolService.writeBitToPLC('M', 5001, 1, [1]);
   };
+
+  private hexToAscii(hexx) {
+    const hex = hexx.toString();
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+      const _char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      if (_char != '\0') {
+        str += _char;
+      }
+    }
+    return str;
+  }
 }

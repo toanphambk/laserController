@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Hardware } from 'keysender';
 import net from 'net';
-import { ServiceState as ServiceState } from '../interface/laserController.Interface';
+import { ServiceState } from '../interface/serviceState.Interface';
 import { execFile } from 'child_process';
 import events from 'events';
+import { LaserControllerState } from '../interface/serviceState.Interface';
 
 @Injectable()
 export class LaserControllerService {
-  private state: ServiceState = ServiceState.BOOT_UP;
+  private state: LaserControllerState = LaserControllerState.BOOT_UP;
   private laserSocketServer: net.Server;
   private laserControllerEvent = new events.EventEmitter();
   private laserEngraveData = '';
@@ -16,17 +17,22 @@ export class LaserControllerService {
     return this.state;
   };
   public laserControllerServiceInit = async () => {
-    this.state = ServiceState.INIT;
+    this.state = LaserControllerState.INIT;
     await this.initTCPserver();
     await this.initLaserSofware();
-    return (this.state = ServiceState.READY);
+    return (this.state = LaserControllerState.READY);
   };
 
-  public laserTrigger = async (data: string): Promise<boolean> => {
+  public triggerLaser = async (data: string): Promise<boolean> => {
+    if (this.state != LaserControllerState.READY) {
+      console.log('laser service is not ready');
+      return false;
+    }
+    this.state = LaserControllerState.WORKING;
     //check if software is opening
     const laserWindow = new Hardware('EzCad-Lite  - No.ezd');
     if (!laserWindow.workwindow.isOpen()) {
-      console.log('laser sofware is not opening');
+      this.errorHandler('laser sofware is not opening');
       return false;
     }
     laserWindow.workwindow.setForeground();
@@ -34,7 +40,7 @@ export class LaserControllerService {
     const bufferRecived = await new Promise((res) => {
       const tcpBufferTimer = setTimeout(() => {
         this.laserControllerEvent.removeListener('tcpBufferComming', () => {
-          console.log('tcp buffer timeout');
+          this.errorHandler('tcp buffer timeout');
           res(false);
         });
       }, 1000);
@@ -44,24 +50,48 @@ export class LaserControllerService {
         console.log('tcp buffer recieved');
         res(true);
       });
-
       this.laserEngraveData = data;
       laserWindow.keyboard.sendKey('f2');
     });
 
     if (!bufferRecived) {
+      console.log('buffer timeout');
       return false;
     }
 
     await new Promise<void>((res) => {
       setTimeout(() => {
         res();
-      }, 2000);
+      }, 200);
     });
-
+    this.state = LaserControllerState.WORKING;
     return true;
   };
 
+  public finishLaser = () => {
+    if (this.state == LaserControllerState.WORKING) {
+      this.state = LaserControllerState.READY;
+      return true;
+    }
+    console.log('finish laser fail');
+    return false;
+  };
+
+  public stopLaser = async () => {
+    const laserWindow = new Hardware('EzCad-Lite  - No.ezd');
+    if (!laserWindow.workwindow.isOpen()) {
+      this.errorHandler('laser sofware is not opening');
+      return false;
+    }
+    laserWindow.workwindow.setForeground();
+    await new Promise<void>((res) => {
+      setTimeout(() => {
+        laserWindow.keyboard.sendKey('enter');
+        res();
+      }, 500);
+    });
+    this.errorHandler('PLC laser stop signal');
+  };
   private initTCPserver = () => {
     return new Promise<void>((res) => {
       this.laserSocketServer = net.createServer((socket) => {
@@ -163,7 +193,7 @@ export class LaserControllerService {
   };
 
   private errorHandler = (err) => {
-    this.state = ServiceState.ERROR;
+    this.state = LaserControllerState.ERROR;
     console.log(err);
   };
 }
