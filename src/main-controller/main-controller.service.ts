@@ -53,6 +53,8 @@ export class MainControllerService {
 
   private laserCommand = async () => {
     if (this.systemState.state != ServiceState.READY) return;
+    if (this.laserControlerService.getState() != LaserControllerState.READY)
+      return;
     try {
       const _plcLaserCommand = await this.mcProtocolService.readBitFromPLC(
         'M',
@@ -81,15 +83,19 @@ export class MainControllerService {
 
   private wait4LaserStop = () => {
     return new Promise<void>((res) => {
-      setTimeout(() => {
-        const laserRunning = this.mcProtocolService.readBitFromPLC(
+      setTimeout(async () => {
+        const laserRunning = await this.mcProtocolService.readBitFromPLC(
           'M',
           5003,
           1,
         );
-        const laserEMG = this.mcProtocolService.readBitFromPLC('M', 5005, 1);
+        const laserEMG = await this.mcProtocolService.readBitFromPLC(
+          'M',
+          5005,
+          1,
+        );
         if (laserEMG[0]) {
-          this.laserControlerService.stopLaser();
+          await this.laserControlerService.stopLaser();
           return res();
         }
         if (!laserRunning[0] && !laserEMG[0]) {
