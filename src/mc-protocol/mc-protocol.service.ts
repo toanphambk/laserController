@@ -446,12 +446,6 @@ export class McProtocolService {
   private errorHandler = (err?) => {
     this.state = ServiceState.ERROR;
     this.plcSocketEvent.removeAllListeners();
-    if (this.plcSocket) {
-      this.plcSocket.end();
-    }
-    setTimeout(() => {
-      this.initPlcSocket(this.socketParam.port, this.socketParam.port);
-    }, 2000);
     this.queue = [];
     console.log(err);
   };
