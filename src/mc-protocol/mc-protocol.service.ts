@@ -446,7 +446,9 @@ export class McProtocolService {
   private errorHandler = (err?) => {
     this.state = ServiceState.ERROR;
     this.plcSocketEvent.removeAllListeners();
-    this.plcSocket.end();
+    if (this.plcSocket) {
+      this.plcSocket.end();
+    }
     setTimeout(() => {
       this.initPlcSocket(this.socketParam.port, this.socketParam.port);
     }, 2000);

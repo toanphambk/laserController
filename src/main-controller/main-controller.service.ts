@@ -19,7 +19,7 @@ export class MainControllerService {
 
   private systemState = {
     state: ServiceState.INIT,
-    laserCommand: 0,
+    plcLaserCommandStatus: 0,
   };
 
   public mainControllerInit = async () => {
@@ -54,14 +54,14 @@ export class MainControllerService {
   private laserCommand = async () => {
     if (this.systemState.state != ServiceState.READY) return;
     try {
-      const _laserCommand = await this.mcProtocolService.readBitFromPLC(
+      const _plcLaserCommand = await this.mcProtocolService.readBitFromPLC(
         'M',
         5000,
         1,
       );
-      if (this.systemState.laserCommand != _laserCommand[0]) {
-        this.systemState.laserCommand = _laserCommand[0];
-        if (!_laserCommand[0]) {
+      if (this.systemState.plcLaserCommandStatus != _plcLaserCommand[0]) {
+        this.systemState.plcLaserCommandStatus = _plcLaserCommand[0];
+        if (!_plcLaserCommand[0]) {
           return;
         }
         const dataForLaser = await this.mcProtocolService.readWordFromPLC(
