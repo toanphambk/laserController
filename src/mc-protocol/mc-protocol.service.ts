@@ -128,9 +128,7 @@ export class McProtocolService {
                 deviceNum,
                 deviceCount,
                 deviceData,
-              },
-              null,
-              2,
+              }
             )} : ${data}`,
           );
           res(true);
@@ -143,9 +141,7 @@ export class McProtocolService {
                 deviceNum,
                 deviceCount,
                 deviceData,
-              },
-              null,
-              2,
+              }
             )} : ${data}`,
           );
         }
@@ -203,9 +199,7 @@ export class McProtocolService {
                 deviceNum,
                 deviceCount,
                 deviceData,
-              },
-              null,
-              2,
+              }
             )} : ${data}`,
           );
           res(true);
@@ -218,9 +212,7 @@ export class McProtocolService {
                 deviceNum,
                 deviceCount,
                 deviceData,
-              },
-              null,
-              2,
+              }
             )} : ${data}`,
           );
         }
@@ -270,9 +262,7 @@ export class McProtocolService {
                 deviceType,
                 deviceNum,
                 deviceCount,
-              },
-              null,
-              2,
+              }
             )} : ${temp}`,
           );
           res(temp);
@@ -284,9 +274,7 @@ export class McProtocolService {
                 deviceType,
                 deviceNum,
                 deviceCount,
-              },
-              null,
-              2,
+              }
             )} : ${data}`,
           );
         }
@@ -333,9 +321,7 @@ export class McProtocolService {
                 deviceType,
                 deviceNum,
                 deviceCount,
-              },
-              null,
-              2,
+              }
             )} : ${temp}`,
           );
           res(temp);
@@ -347,10 +333,7 @@ export class McProtocolService {
                 deviceType,
                 deviceNum,
                 deviceCount,
-              },
-              null,
-              2,
-            )} : ${data}`,
+              })} : ${data}`,
           );
         }
       });
@@ -432,7 +415,7 @@ export class McProtocolService {
 
   private scan = async () => {
     if (this.state != ServiceState.READY) {
-      this.errorHandler();
+      this.errorHandler('plc service not Ready');
       await new Promise<void>((res) => {
         setTimeout(() => {
           res();
@@ -469,14 +452,14 @@ export class McProtocolService {
         }
         this.scan();
         res();
-      });
+      })
       this.plcSocket.write(command.buffer);
       this.queue.shift();
     });
   };
 
   private errorHandler = (err?) => {
-    this.state = ServiceState.ERROR;
+    this.state = ServiceState.ERROR
     this.plcSocketEvent.removeAllListeners();
     this.queue = [];
     console.log(err);

@@ -47,7 +47,7 @@ export class MainControllerService {
       this.laserControlerService.getState() == LaserControllerState.ERROR
     ) {
       this.systemState.state = ServiceState.ERROR;
-      this.errorHandler();
+      this.errorHandler('system state error');
     }
   };
 

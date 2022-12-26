@@ -78,17 +78,17 @@ export class LaserControllerService {
   };
 
   public stopLaser = async () => {
-    const laserWindow = new Hardware('EzCad-Lite  - No.ezd');
-    if (!laserWindow.workwindow.isOpen()) {
+    const markWindow = new Hardware('Mark');
+    if (!markWindow.workwindow.isOpen()) {
       this.errorHandler('laser sofware is not opening');
       return false;
     }
-    laserWindow.workwindow.setForeground();
+    markWindow.workwindow.setForeground();
     await new Promise<void>((res) => {
       setTimeout(() => {
-        laserWindow.keyboard.sendKey('enter');
+        markWindow.keyboard.sendKey('enter');
         res();
-      }, 500);
+      }, 200);
     });
     this.errorHandler('PLC laser stop signal');
   };
@@ -196,7 +196,12 @@ export class LaserControllerService {
   private errorHandler = async (err?) => {
     this.state = LaserControllerState.ERROR;
     console.log(err);
-    await this.initLaserSofware();
+    await new Promise<void>((res)=>{
+      setTimeout(()=>{
+        this.initLaserSofware()
+        return res()
+      },2000)
+    });
     return (this.state = LaserControllerState.READY);
   };
 }
