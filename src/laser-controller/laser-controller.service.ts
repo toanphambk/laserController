@@ -196,11 +196,11 @@ export class LaserControllerService {
   private errorHandler = async (err?) => {
     this.state = LaserControllerState.ERROR;
     console.log(err);
-    await new Promise<void>((res)=>{
-      setTimeout(()=>{
-        this.initLaserSofware()
-        return res()
-      },2000)
+    await new Promise<void>((res) => {
+      setTimeout(() => {
+        this.initLaserSofware();
+        return res();
+      }, 2000);
     });
     return (this.state = LaserControllerState.READY);
   };

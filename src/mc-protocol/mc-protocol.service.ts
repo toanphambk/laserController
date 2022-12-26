@@ -122,27 +122,23 @@ export class McProtocolService {
       this.plcSocketEvent.once(_uuid, (data) => {
         if (data) {
           console.log(
-            `Command Write Bit ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-                deviceData,
-              }
-            )} : ${data}`,
+            `Command Write Bit ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            })} : ${data}`,
           );
           res(true);
         } else {
           this.errorHandler();
           rej(
-            `Fail Command Write Bit${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-                deviceData,
-              }
-            )} : ${data}`,
+            `Fail Command Write Bit${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            })} : ${data}`,
           );
         }
       });
@@ -193,27 +189,23 @@ export class McProtocolService {
       this.plcSocketEvent.once(_uuid, (data) => {
         if (data) {
           console.log(
-            `Command Write Word ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-                deviceData,
-              }
-            )} : ${data}`,
+            `Command Write Word ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            })} : ${data}`,
           );
           res(true);
         } else {
           this.errorHandler();
           rej(
-            `Fail Command Write Word ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-                deviceData,
-              }
-            )} : ${data}`,
+            `Fail Command Write Word ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+              deviceData,
+            })} : ${data}`,
           );
         }
       });
@@ -257,25 +249,21 @@ export class McProtocolService {
             .split('')
             .map((char) => parseInt(char));
           console.log(
-            `Command Read Bit ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-              }
-            )} : ${temp}`,
+            `Command Read Bit ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+            })} : ${temp}`,
           );
           res(temp);
         } else {
           this.errorHandler();
           rej(
-            `Fail Command Read Bit${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-              }
-            )} : ${data}`,
+            `Fail Command Read Bit${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+            })} : ${data}`,
           );
         }
       });
@@ -316,24 +304,21 @@ export class McProtocolService {
         if (data.substring(0, 4) == '8100') {
           const temp = data.substring(4);
           console.log(
-            `Command Read Word ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-              }
-            )} : ${temp}`,
+            `Command Read Word ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+            })} : ${temp}`,
           );
           res(temp);
         } else {
           this.errorHandler();
           rej(
-            `Fail Command Read Word : ${JSON.stringify(
-              {
-                deviceType,
-                deviceNum,
-                deviceCount,
-              })} : ${data}`,
+            `Fail Command Read Word : ${JSON.stringify({
+              deviceType,
+              deviceNum,
+              deviceCount,
+            })} : ${data}`,
           );
         }
       });
@@ -452,14 +437,14 @@ export class McProtocolService {
         }
         this.scan();
         res();
-      })
+      });
       this.plcSocket.write(command.buffer);
       this.queue.shift();
     });
   };
 
   private errorHandler = (err?) => {
-    this.state = ServiceState.ERROR
+    this.state = ServiceState.ERROR;
     this.plcSocketEvent.removeAllListeners();
     this.queue = [];
     console.log(err);
